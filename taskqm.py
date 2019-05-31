@@ -2,15 +2,21 @@ from cmd import Cmd
 from subprocess import run
 
 from painter import TextColor, Painter
+from board import Board
+from settings import Settings
 
 
 class TaskQM(Cmd):
     intro = 'Task Quartermaster'
-    prompt = Painter.color(TextColor.BLUE, 'tqm> ')
+    prompt = Painter.color(TextColor.BLUE, Settings.PROMPT + ' ')
 
     def __init__(self):
         super().__init__()
         self.project = None
+
+    def do_report(self, arg):
+        board = Board('pending', '+PENDING')
+        board.render()
 
     def do_list(self, arg):
         q = 'list'
