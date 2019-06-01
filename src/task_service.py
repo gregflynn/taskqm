@@ -1,7 +1,7 @@
 import json
 from subprocess import check_output
 
-from task import Task
+from .task import Task
 
 
 class TaskService(object):

@@ -1,3 +1,5 @@
 #! /bin/bash
 
-python3 $(dirname $0)/taskqm.py
+pushd $(dirname $0) > /dev/null
+python3 -m src
+popd > /dev/null

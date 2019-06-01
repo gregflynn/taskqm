@@ -1,9 +1,9 @@
 from cmd import Cmd
 from subprocess import run
 
-from painter import TextColor, Painter
-from board import Board
-from settings import Settings
+from .painter import TextColor, Painter
+from .board import Board
+from .settings import Settings
 
 
 class TaskQM(Cmd):

@@ -1,5 +1,5 @@
-from task_service import TaskService
-from settings import Settings
+from .task_service import TaskService
+from .settings import Settings
 
 
 class Board(object):
