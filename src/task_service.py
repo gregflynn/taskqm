@@ -30,6 +30,5 @@ class TaskService(object):
         if query:
             cmd.append(query)
         cmd.append('export')
-        print(cmd)
         tasks = json.loads(check_output(cmd))
         return [Task(t) for t in tasks]

@@ -21,7 +21,6 @@ class TaskQM(Cmd):
 
     def __init__(self):
         super().__init__()
-        print(self.PROJECTS)
         self.project = None
         self.board = self.DEFAULT_BOARD
 
@@ -49,7 +48,6 @@ class TaskQM(Cmd):
     def default(self, arg):
         if arg == 'EOF':
             return True
-        self.run(arg)
 
     def run(self, prompt):
         prompt += self.get_filters()
@@ -66,8 +64,10 @@ class TaskQM(Cmd):
     def render_status_line(self):
         line = '\n'
 
+        line += Painter.color(Color.GREEN, f'{self.board}')
+
         if self.project:
-            line += Painter.color(Color.PURPLE, f'project:{self.project}')
+            line += Painter.color(Color.PURPLE, f' project:{self.project}')
 
         print(line)
 
@@ -81,7 +81,7 @@ class TaskQM(Cmd):
 
     def postcmd(self, stop, line):
         if self.should_print_board:
-            self.BOARDS[self.board].render()
+            self.BOARDS[self.board].render(self.get_filters())
         self.render_status_line()
         return stop
 
