@@ -17,12 +17,17 @@ class TaskQM(Cmd):
         'done': Board('done', '+DONE')
     }
     DEFAULT_BOARD = 'started'
+    BACKUP_BOARD = 'pending'
     PROJECTS = set(TaskService.get_projects())
 
     def __init__(self):
         super().__init__()
         self.project = None
-        self.board = self.DEFAULT_BOARD
+
+        if self.BOARDS[self.DEFAULT_BOARD].count():
+            self.board = self.DEFAULT_BOARD
+        else:
+            self.board = self.BACKUP_BOARD
 
     def do_project(self, arg):
         self.project = arg if arg else None

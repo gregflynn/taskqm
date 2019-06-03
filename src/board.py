@@ -7,6 +7,9 @@ class Board(object):
         self.name = name
         self.query = query
 
+    def count(self):
+        return len(TaskService.get_tasks(query=self.query))
+
     def render(self, filters):
         tasks = TaskService.get_tasks(query=f'{self.query} {filters}')
         for task in tasks:
