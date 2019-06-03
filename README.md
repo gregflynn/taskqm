@@ -1,4 +1,5 @@
 # Task Quartermaster (taskqm)
-A command shell wrapper for Task Warrior
+A shell for Task Warrior
 
-This is a very early work in progress
+## Installation
+- Don't

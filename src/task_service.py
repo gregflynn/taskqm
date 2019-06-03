@@ -7,18 +7,22 @@ from .task import Task
 class TaskService(object):
     @classmethod
     def get_udas(cls):
-        udas = set(check_output(['task', '_udas']).split())
-        return sorted(udas)
+        return cls._get_from_task('_uda')
 
     @classmethod
     def get_task_ids(cls):
-        ids = check_output(['task', '_ids']).split()
-        return ids
+        return cls._get_from_task('_ids')
 
     @classmethod
     def get_projects(cls):
-        projects = check_output(['task', '_projects']).split()
-        return sorted(set(projects))
+        return cls._get_from_task('_projects')
+
+    @staticmethod
+    def _get_from_task(subtask):
+        return sorted(set([
+            x.strip().decode('utf-8')
+            for x in check_output(['task', subtask]).split()
+        ]))
 
     @classmethod
     def get_tasks(cls, query=None):
