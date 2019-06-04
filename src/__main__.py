@@ -23,6 +23,7 @@ class TaskQM(Cmd):
     def __init__(self):
         super().__init__()
         self.project = None
+        self._quitting = False
 
         if self.BOARDS[self.DEFAULT_BOARD].count():
             self.board = self.DEFAULT_BOARD
@@ -52,6 +53,7 @@ class TaskQM(Cmd):
 
     def default(self, arg):
         if arg == 'EOF':
+            self._quitting = True
             return True
 
     def run(self, prompt):
@@ -82,12 +84,12 @@ class TaskQM(Cmd):
 
     @property
     def should_print_board(self):
-        return True
+        return not self._quitting
 
     def postcmd(self, stop, line):
         if self.should_print_board:
             self.BOARDS[self.board].render(self.get_filters())
-        self.render_status_line()
+            self.render_status_line()
         return stop
 
 
