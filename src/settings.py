@@ -7,9 +7,16 @@ SYSTEM_SETTINGS_PATH = '/etc/taskqmrc'
 
 class Settings(object):
     PROMPT = '>'
+    PADDING = 2
     COLUMNS = [
-        'id', 'is_active', 'type', 'size', 'project', 'tags',
-        'description_count', 'urgency'
+        ('id', '#', 'r'),
+        ('is_active', ''),
+        'type',
+        'size',
+        'project',
+        'tags',
+        ('description_count', ''),
+        ('urgency', 'score', 'r', '{:.1f}')
     ]
     BOARDS = [
         {
