@@ -4,7 +4,7 @@ from .painter import Painter, Color
 class StatusLine(object):
     ALL_PROJECTS = 'all'
     ACTIVE_BOARD_FG = Color.BLACK
-    ACTIVE_BOARD_BG = Color.GREEN
+    ACTIVE_BOARD_BG = Color.BLUE
     INACTIVE_BOARD_FG = Color.WHITE
     INACTIVE_BOARD_BG = Color.BLACK
 
@@ -12,10 +12,12 @@ class StatusLine(object):
         self._taskqm = taskqm
 
     def render(self):
-        sections = []
-        sections.extend(self._board_sections())
-        sections.extend([Divider(Color.YELLOW)])
+        div = Divider(Color.YELLOW)
+        sections = [div]
+        for board_section in self._board_sections():
+            sections.extend([board_section, div])
         sections.extend(self._project_sections())
+        sections.extend(self._order_sections())
 
         line = '\n'
 
@@ -28,7 +30,7 @@ class StatusLine(object):
         def active(b):
             return b == self._taskqm.board
         return [
-            Section(
+            BoardSection(
                 b,
                 self.ACTIVE_BOARD_FG if active(b) else self.INACTIVE_BOARD_FG,
                 self.ACTIVE_BOARD_BG if active(b) else self.INACTIVE_BOARD_BG
@@ -42,9 +44,13 @@ class StatusLine(object):
             project_name = self._taskqm.project
         return [Section(f'{project_name}', Color.BLACK, Color.PURPLE)]
 
+    def _order_sections(self):
+        return [Section(f'{self._taskqm.order}', Color.BLACK, Color.RED)]
+
 
 class Section(object):
-    ARROW = ''
+    FIRST_ARROW = '\uE0BA'
+    ARROW = '\uE0BC'
 
     def __init__(self, text, fg, bg):
         self.text = text
@@ -53,8 +59,7 @@ class Section(object):
 
     def render(self, idx, sections):
         pre = ''
-        text = f' {self.text} ' if self.text else self.text
-        arrow = ''
+        text = self._render_text()
 
         next_section = self._next_section_color(idx, sections)
         if next_section:
@@ -63,12 +68,20 @@ class Section(object):
             arrow = Painter.color(self.bg, self.ARROW)
 
         if idx == 0:
-            pre = Painter.color(Color.BLACK, self.bg, self.ARROW)
+            pre = Painter.color(self.bg, self.FIRST_ARROW)
 
         return f'{pre}{Painter.color(self.fg, self.bg, text)}{arrow}'
 
+    def _render_text(self):
+        return f' {self.text} ' if self.text else self.text
+
     def _next_section_color(self, idx, sections):
         return sections[idx + 1].bg if len(sections) > idx + 1 else None
+
+
+class BoardSection(Section):
+    def _render_text(self):
+        return self.text
 
 
 class Divider(Section):

@@ -23,7 +23,7 @@ class Settings(object):
         {'name': 'tags'},
         {
             'name': 'description_count',
-            'display_name': ''
+            'display_name': 'description'
         }, {
             'name': 'urgency',
             'display_name': 'score',
