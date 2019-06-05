@@ -12,7 +12,7 @@ class Column(object):
         'justified': LEFT,
         'format': '{}'
     }
-    TRUE = 'x'
+    TRUE = ''
     FALSE = ''
 
     def __init__(self, config):

@@ -5,15 +5,17 @@ from .painter import Color, Painter
 from .board import Board
 from .settings import Settings
 from .task_service import TaskService
+from .status import StatusLine
 
 
 class TaskQM(Cmd):
-    intro = 'Task Quartermaster'
+    intro = ''
     prompt = Painter.color(Color.BLUE, Settings.PROMPT + ' ')
 
+    BOARD_NAMES = ['pending', 'started', 'done']
     BOARDS = {
-        'pending': Board('pending', '+PENDING'),
-        'started': Board('started', '+STARTED'),
+        'pending': Board('pending', '+PENDING -ACTIVE'),
+        'started': Board('started', '+ACTIVE'),
         'done': Board('done', '+DONE')
     }
     DEFAULT_BOARD = 'started'
@@ -30,6 +32,10 @@ class TaskQM(Cmd):
         else:
             self.board = self.BACKUP_BOARD
 
+        self._status = StatusLine(self)
+        self.precmd('')
+        self.postcmd(False, '')
+
     def do_project(self, arg):
         self.project = arg if arg else None
 
@@ -45,8 +51,9 @@ class TaskQM(Cmd):
         self.board = arg
 
     def complete_board(self, text, line, begidx, endidx):
-        boards = self.BOARDS.keys()
-        return sorted([name for name in boards if name.startswith(text)])
+        return sorted([
+            name for name in self.BOARD_NAMES if name.startswith(text)
+        ])
 
     def do_exit(self, arg):
         return True
@@ -68,18 +75,9 @@ class TaskQM(Cmd):
 
         return filters
 
-    def render_status_line(self):
-        line = '\n'
-
-        line += Painter.color(Color.GREEN, f'{self.board}')
-
-        if self.project:
-            line += Painter.color(Color.PURPLE, f' project:{self.project}')
-
-        print(line)
-
     def precmd(self, line):
         print()
+        run(['clear'])
         return line
 
     @property
@@ -89,7 +87,7 @@ class TaskQM(Cmd):
     def postcmd(self, stop, line):
         if self.should_print_board:
             self.BOARDS[self.board].render(self.get_filters())
-            self.render_status_line()
+            print(self._status.render())
         return stop
 
 
