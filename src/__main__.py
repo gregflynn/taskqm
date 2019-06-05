@@ -3,7 +3,7 @@ from subprocess import run
 
 from src.services import TaskService
 from src.settings import Settings
-from src.ui import Color, Board, StatusLine
+from src.ui import Color, Board, StatusLine, Selector
 
 
 class TaskQM(Cmd):
@@ -96,8 +96,9 @@ class TaskQM(Cmd):
         """edit the given task
         """
         if not arg:
-            pass
-        TaskService.edit(arg)
+            arg = Selector.select()
+        if arg:
+            TaskService.edit(arg)
 
     def complete_edit(self, text, line, begidx, endidx):
         return [

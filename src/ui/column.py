@@ -2,6 +2,8 @@ from src.settings import Settings
 
 
 class Column(object):
+    PADDING = ' ' * Settings.PADDING
+
     def __init__(self, column_config):
         self.config = column_config
         self.items = []
@@ -22,6 +24,44 @@ class Column(object):
 
     def header_line(self):
         return '-' * self.width
+
+    @property
+    def size(self):
+        return len(self.items)
+
+    @staticmethod
+    def build_column_group(tasks, columns=None):
+        columns = [Column(c) for c in columns or Settings.COLUMNS]
+        for task in tasks:
+            for col in columns:
+                col.add(task)
+        return columns
+
+    @classmethod
+    def column_group_header(cls, columns):
+        header_line = []
+        divider = []
+        for c in columns:
+            header_line.append(c.header())
+            divider.append(c.header_line())
+
+        return '{}\n{}'.format(
+            cls.PADDING.join(header_line), cls.PADDING.join(divider)
+        )
+
+    @classmethod
+    def column_group_content(cls, columns):
+        rendered_lines = []
+
+        for idx in range(columns[0].size):
+            rendered_cols = []
+
+            for col in columns:
+                rendered_cols.append(col.render(idx))
+
+            rendered_lines.append(cls.PADDING.join(rendered_cols))
+
+        return '\n'.join(rendered_lines)
 
     def _padded_fmt(self, item):
         if item is None:
