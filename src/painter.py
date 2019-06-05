@@ -31,6 +31,6 @@ class Painter(object):
             str: the colored string
         """
         fg = Color.fg(fgcolor)
-        if arg3:
+        if arg3 is not None:
             return f'\033[{fg};{Color.bg(arg2)}m{arg3}\033[0m'
         return f'\033[{fg}m{arg2}\033[0m'

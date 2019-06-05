@@ -36,6 +36,9 @@ class TaskQM(Cmd):
         self.precmd('')
         self.postcmd(False, '')
 
+    def emptyline(self):
+        pass
+
     def do_project(self, arg):
         self.project = arg if arg else None
 
