@@ -1,6 +1,6 @@
+from src.services import TaskService
+from src.settings import Settings
 from .column import Column
-from .task_service import TaskService
-from .settings import Settings
 
 
 class Board(object):
@@ -34,7 +34,7 @@ class Board(object):
             print()
 
     def _get_sorted_tasks(self, columns, filters, order):
-        col_map = {c.display_name: c.name for c in columns}
+        col_map = {c.config.display_name: c.config.name for c in columns}
         tasks = TaskService.get_tasks(query=f'{self.query} {filters}')
 
         for o, directon in reversed(self._parse_order(order)):

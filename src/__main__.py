@@ -1,17 +1,15 @@
 from cmd import Cmd
 from subprocess import run
 
-from .painter import Color, Painter
-from .board import Board
-from .settings import Settings
-from .task_service import TaskService
-from .status import StatusLine
+from src.services import TaskService
+from src.settings import Settings
+from src.ui import Color, Board, StatusLine
 
 
 class TaskQM(Cmd):
     intro = ''
-    prompt = Painter.color(Color.BLUE, Settings.PROMPT + ' ')
-    doc_header = Painter.color(Color.BLUE, 'Commands: [help command]')
+    prompt = Color.paint(Color.BLUE, Settings.PROMPT + ' ')
+    doc_header = Color.paint(Color.BLUE, 'Commands: [help command]')
     ruler = ''
 
     BOARD_NAMES = ['pend', 'start', 'done']
@@ -90,6 +88,21 @@ class TaskQM(Cmd):
         return sorted([
             name for name in self.BOARD_NAMES if name.startswith(text)
         ])
+
+    #
+    # Edit
+    #
+    def do_edit(self, arg):
+        """edit the given task
+        """
+        if not arg:
+            pass
+        TaskService.edit(arg)
+
+    def complete_edit(self, text, line, begidx, endidx):
+        return [
+            t for t in TaskService.get_task_ids() if str(t).startswith(text)
+        ]
 
     #
     # Help

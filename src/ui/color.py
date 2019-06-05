@@ -16,10 +16,8 @@ class Color(object):
     def bg(color):
         return '4' + str(int(color) % 10)
 
-
-class Painter(object):
     @staticmethod
-    def color(fgcolor, arg2, arg3=None):
+    def paint(fgcolor, arg2, arg3=None):
         """Return a colored string that can be printed
 
         Args:

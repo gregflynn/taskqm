@@ -1,4 +1,4 @@
-from .painter import Painter, Color
+from .color import Color
 
 
 class StatusLine(object):
@@ -63,14 +63,14 @@ class Section(object):
 
         next_section = self._next_section_color(idx, sections)
         if next_section:
-            arrow = Painter.color(self.bg, next_section, self.ARROW)
+            arrow = Color.paint(self.bg, next_section, self.ARROW)
         else:
-            arrow = Painter.color(self.bg, self.ARROW)
+            arrow = Color.paint(self.bg, self.ARROW)
 
         if idx == 0:
-            pre = Painter.color(self.bg, self.FIRST_ARROW)
+            pre = Color.paint(self.bg, self.FIRST_ARROW)
 
-        return f'{pre}{Painter.color(self.fg, self.bg, text)}{arrow}'
+        return f'{pre}{Color.paint(self.fg, self.bg, text)}{arrow}'
 
     def _render_text(self):
         return f' {self.text} ' if self.text else self.text
