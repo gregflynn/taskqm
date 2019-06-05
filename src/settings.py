@@ -9,14 +9,27 @@ class Settings(object):
     PROMPT = '>'
     PADDING = 2
     COLUMNS = [
-        ('id', '#', 'r'),
-        ('is_active', ''),
-        'type',
-        'size',
-        'project',
-        'tags',
-        ('description_count', ''),
-        ('urgency', 'score', 'r', '{:.1f}')
+        {
+            'name': 'id',
+            'display_name': '#',
+            'justified': 'r'
+        }, {
+            'name': 'is_active',
+            'display_name': 'A'
+        },
+        {'name': 'type'},
+        {'name': 'size'},
+        {'name': 'project'},
+        {'name': 'tags'},
+        {
+            'name': 'description_count',
+            'display_name': ''
+        }, {
+            'name': 'urgency',
+            'display_name': 'score',
+            'justified': 'r',
+            'format': '{:.1f}'
+        }
     ]
     BOARDS = [
         {
