@@ -37,4 +37,24 @@ class TaskService(object):
 
     @classmethod
     def edit(cls, taskid):
-        return run([cls.CMD, 'edit', taskid])
+        run([cls.CMD, taskid, 'edit'])
+
+    @classmethod
+    def start(cls, taskid):
+        run([cls.CMD, taskid, 'start'])
+
+    @classmethod
+    def stop(cls, taskid):
+        run([cls.CMD, taskid, 'stop'])
+
+    @classmethod
+    def done(cls, taskid):
+        run([cls.CMD, taskid, 'done'])
+
+    @classmethod
+    def annotate(cls, taskid, annotation):
+        run([cls.CMD, taskid, 'annotate', annotation])
+
+    @classmethod
+    def view(cls, taskid):
+        return check_output([cls.CMD, taskid]).decode('utf-8')

@@ -7,9 +7,9 @@ from .column import Column
 
 class Selector(object):
     @classmethod
-    def select(cls):
+    def select(cls, query=None):
         columns = Column.build_column_group(
-            TaskService.get_tasks(),
+            TaskService.get_tasks(query=query),
             columns=[ColumnConfig('id')] + Settings.COLUMNS
         )
 

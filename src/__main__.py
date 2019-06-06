@@ -24,12 +24,13 @@ class TaskQM(Cmd):
     DEFAULT_ORDER = 'score-'
 
     # commands that don't alter the board, so we don't clear and reprint it
-    NON_BOARD_COMMANDS = {'h', 'help'}
+    NON_BOARD_COMMANDS = {'h', 'help', 'view'}
 
     def __init__(self):
         super().__init__()
         self.project = None
         self.order = self.DEFAULT_ORDER
+        self._cmd_output = None
 
         if self.BOARDS[self.DEFAULT_BOARD].count():
             self.board = self.DEFAULT_BOARD
@@ -90,20 +91,57 @@ class TaskQM(Cmd):
         ])
 
     #
-    # Edit
+    # Task Commands
     #
+    def do_view(self, arg):
+        """view details of a task
+        """
+        if not arg:
+            arg = Selector('-DONE')
+        if arg:
+            self._cmd_output = TaskService.view(arg)
+
     def do_edit(self, arg):
         """edit the given task
         """
         if not arg:
-            arg = Selector.select()
+            arg = Selector.select('-DONE')
         if arg:
             TaskService.edit(arg)
 
-    def complete_edit(self, text, line, begidx, endidx):
-        return [
-            t for t in TaskService.get_task_ids() if str(t).startswith(text)
-        ]
+    def do_start(self, arg):
+        """start the given task
+        """
+        if not arg:
+            arg = Selector.select('+PENDING -ACTIVE')
+        if arg:
+            TaskService.start(arg)
+
+    def do_stop(self, arg):
+        """stop the given task
+        """
+        if not arg:
+            arg = Selector.select('+ACTIVE')
+        if arg:
+            TaskService.stop(arg)
+
+    def do_done(self, arg):
+        """finish the given task
+        """
+        if not arg:
+            arg = Selector.select('+ACTIVE')
+        if arg:
+            TaskService.done(arg)
+
+    def do_annotate(self, arg):
+        """annotate the given task
+        """
+        if not arg:
+            arg = Selector.select('-DONE')
+        if arg:
+            annotation = input(Color.paint(Color.BLUE, 'annotation: '))
+            if annotation:
+                TaskService.annotate(arg, annotation)
 
     #
     # Help
@@ -130,7 +168,7 @@ class TaskQM(Cmd):
     # Helpers
     #
     def should_print_board(self, line):
-        return not line or line.split()[0] not in {'h', 'help'}
+        return (not line or line.split()[0] not in self.NON_BOARD_COMMANDS) and not self._cmd_output
 
     #
     # Overrides
@@ -138,20 +176,44 @@ class TaskQM(Cmd):
     def precmd(self, line):
         if line == 'EOF':
             raise KeyboardInterrupt
-        if self.should_print_board(line):
-            run(['clear'])
-            print(f'{self.prompt}{line}')
         return line
 
     def postcmd(self, stop, line):
-        if self.should_print_board(line):
-            self.BOARDS[self.board].render(self.get_filters(), self.order)
+        print_board = self.should_print_board(line)
+        if print_board:
+            run(['clear'])
+            if line:
+                print(f'{self.prompt}{line}')
+
+        if self._cmd_output:
+            print(self._cmd_output)
+            self._cmd_output = None
+
+        if print_board:
             print(self._status.render())
+            self.BOARDS[self.board].render(self.get_filters(), self.order)
         return stop
 
     def emptyline(self):
         """no-op so the default behavior of execing last command doesn't happen
         """
+
+    def default(self, line):
+        try:
+            if line in TaskService.get_task_ids():
+                self.do_view(line)
+                return
+        except Exception:
+            pass
+
+        if line == 'q':
+            self.board = self.BOARD_NAMES[0]
+        elif line == 'w':
+            self.board = self.BOARD_NAMES[1]
+        elif line == 'e':
+            self.board = self.BOARD_NAMES[2]
+
+        print('default')
 
 
 if __name__ == '__main__':

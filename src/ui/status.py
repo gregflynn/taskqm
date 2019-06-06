@@ -3,8 +3,8 @@ from .color import Color
 
 class StatusLine(object):
     ALL_PROJECTS = 'all'
-    ACTIVE_BOARD_FG = Color.BLACK
-    ACTIVE_BOARD_BG = Color.BLUE
+    ACTIVE_BOARD_FG = Color.BLUE
+    ACTIVE_BOARD_BG = Color.BLACK
     INACTIVE_BOARD_FG = Color.WHITE
     INACTIVE_BOARD_BG = Color.BLACK
 
@@ -12,25 +12,32 @@ class StatusLine(object):
         self._taskqm = taskqm
 
     def render(self):
-        div = Divider(Color.YELLOW)
-        sections = [div]
+        div = Divider(Color.BLUE)
+        line = ['\n']
+
+        sections = []
         for board_section in self._board_sections():
             sections.extend([board_section, div])
-        sections.extend(self._project_sections())
-        sections.extend(self._order_sections())
+        sections.pop()
 
-        line = '\n'
+        line.append(self._render_sections(sections))
+        line.append('  ')
+        line.append(self._render_sections([
+            self._project_section(), self._order_section()]))
 
+        return ''.join(line + ['\n'])
+
+    def _render_sections(self, sections):
+        line = []
         for idx, section in enumerate(sections):
-            line += section.render(idx, sections)
-
-        return line
+            line.append(section.render(idx, sections))
+        return ''.join(line)
 
     def _board_sections(self):
         def active(b):
             return b == self._taskqm.board
         return [
-            BoardSection(
+            Section(
                 b,
                 self.ACTIVE_BOARD_FG if active(b) else self.INACTIVE_BOARD_FG,
                 self.ACTIVE_BOARD_BG if active(b) else self.INACTIVE_BOARD_BG
@@ -38,14 +45,14 @@ class StatusLine(object):
             for b in self._taskqm.BOARD_NAMES
         ]
 
-    def _project_sections(self):
+    def _project_section(self):
         project_name = self.ALL_PROJECTS
         if self._taskqm.project:
             project_name = self._taskqm.project
-        return [Section(f'{project_name}', Color.BLACK, Color.PURPLE)]
+        return Section(f'{project_name}', Color.BLACK, Color.PURPLE)
 
-    def _order_sections(self):
-        return [Section(f'{self._taskqm.order}', Color.BLACK, Color.RED)]
+    def _order_section(self):
+        return Section(f'{self._taskqm.order}', Color.BLACK, Color.RED)
 
 
 class Section(object):
@@ -77,11 +84,6 @@ class Section(object):
 
     def _next_section_color(self, idx, sections):
         return sections[idx + 1].bg if len(sections) > idx + 1 else None
-
-
-class BoardSection(Section):
-    def _render_text(self):
-        return self.text
 
 
 class Divider(Section):
