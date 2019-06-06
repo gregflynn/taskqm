@@ -23,6 +23,11 @@ class TaskQM(Cmd):
     PROJECTS = set(TaskService.get_projects())
     DEFAULT_ORDER = 'score-'
 
+    DEFAULT_PROJECT = 'home'
+    UDA_DEFAULTS = {
+        'type': 'TSK'
+    }
+
     # commands that don't alter the board, so we don't clear and reprint it
     NON_BOARD_COMMANDS = {'h', 'help', 'view'}
 
@@ -139,9 +144,36 @@ class TaskQM(Cmd):
         if not arg:
             arg = Selector.select('-DONE')
         if arg:
-            annotation = input(Color.paint(Color.BLUE, 'annotation: '))
+            annotation = self.input('annotation')
             if annotation:
                 TaskService.annotate(arg, annotation)
+
+    def do_add(self, arg):
+        """add a task
+        """
+        description = arg if arg else self.input('description')
+        if not description:
+            self.output('description required')
+            return
+
+        project = self.input(
+            'project', default=self.project or self.DEFAULT_PROJECT)
+
+        udas = {}
+
+        for uda in TaskService.get_udas():
+            uda_value = self.input(uda, default=self.UDA_DEFAULTS.get(uda))
+            if uda_value not in {'', None}:
+                udas[uda] = uda_value
+
+        tags_input = self.input('tags') or ''
+        tags = tags_input.split(' ')
+        tags = tags if tags != [''] else None
+
+        output = TaskService.add(
+            description, project=project, tags=tags, udas=udas)
+        if output:
+            self.output(output)
 
     #
     # Help
@@ -150,11 +182,13 @@ class TaskQM(Cmd):
     complete_h = Cmd.complete_help
 
     #
-    # Task Warrior Delegation
+    # Helpers
     #
-    def run(self, prompt):
-        prompt += self.get_filters()
-        run(['task', *prompt.split(' ')])
+    def should_print_board(self, line):
+        return (
+            (not line or line.split()[0] not in self.NON_BOARD_COMMANDS)
+            and not self._cmd_output
+        )
 
     def get_filters(self):
         filters = ''
@@ -164,11 +198,15 @@ class TaskQM(Cmd):
 
         return filters
 
-    #
-    # Helpers
-    #
-    def should_print_board(self, line):
-        return (not line or line.split()[0] not in self.NON_BOARD_COMMANDS) and not self._cmd_output
+    def input(self, text, default=None):
+        if default:
+            t = f'{text} [{default}]: '
+        else:
+            t = f'{text}: '
+        return input(Color.paint(Color.BLUE, t)) or default
+
+    def output(self, text):
+        self._cmd_output = text
 
     #
     # Overrides

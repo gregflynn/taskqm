@@ -58,3 +58,20 @@ class TaskService(object):
     @classmethod
     def view(cls, taskid):
         return check_output([cls.CMD, taskid]).decode('utf-8')
+
+    @classmethod
+    def add(cls, description, project=None, tags=None, udas=None):
+        parts = [cls.CMD, 'add', description]
+
+        if project:
+            parts.append(f'project:{project}')
+
+        if tags:
+            parts.extend([f'+{t}' for t in tags])
+
+        if udas:
+            for n, v in udas.items():
+                parts.append(f'{n}:{v}')
+
+        return check_output(parts)
+
