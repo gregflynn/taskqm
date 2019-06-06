@@ -7,9 +7,13 @@ from .column import Column
 
 class Selector(object):
     @classmethod
-    def select(cls, query=None):
+    def select(cls, query=None, project=None):
         columns = Column.build_column_group(
-            TaskService.get_tasks(query=query),
+            [
+                t for t in TaskService.get_tasks(query=query)
+                if project is None
+                or (t.get('project') or '').startswith(project)
+            ],
             columns=[ColumnConfig('id')] + Settings.COLUMNS
         )
 

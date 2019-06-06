@@ -6,6 +6,7 @@ from .task import Task
 
 class TaskService(object):
     CMD = 'task'
+    FORCE_COLOR = 'rc._forcecolor=yes'
 
     @classmethod
     def get_udas(cls):
@@ -75,3 +76,13 @@ class TaskService(object):
 
         return check_output(parts)
 
+    @classmethod
+    def burndown(cls, period):
+        run(
+            f'{cls.CMD} {cls.FORCE_COLOR} burndown.{period} | less -r',
+            shell=True
+        )
+
+    @classmethod
+    def summary(cls):
+        run(f'{cls.CMD} {cls.FORCE_COLOR} summary | less -r', shell=True)

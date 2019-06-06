@@ -28,6 +28,9 @@ class TaskQM(Cmd):
         'type': 'TSK'
     }
 
+    DEFAULT_BURNDOWN = 'daily'
+    BURNDOWN_PERIODS = {'daily', 'weekly', 'monthly'}
+
     # commands that don't alter the board, so we don't clear and reprint it
     NON_BOARD_COMMANDS = {'h', 'help', 'view'}
 
@@ -95,54 +98,65 @@ class TaskQM(Cmd):
             name for name in self.BOARD_NAMES if name.startswith(text)
         ])
 
+    def do_burndown(self, arg):
+        """show a burndown graph
+        """
+        arg = arg or self.DEFAULT_BURNDOWN
+        if arg not in self.BURNDOWN_PERIODS:
+            self.output('Unknown Burndown Period')
+            return
+        TaskService.burndown(arg)
+
+    def complete_burndown(self, text, line, begidx, endidx):
+        return sorted([p for p in self.BURNDOWN_PERIODS if p.startswith(text)])
+
+    def do_summary(self, arg):
+        """show project summaries
+        """
+        TaskService.summary()
+
     #
     # Task Commands
     #
     def do_view(self, arg):
         """view details of a task
         """
-        if not arg:
-            arg = Selector('-DONE')
+        arg = self.fallback_select(arg, '-DONE')
         if arg:
             self._cmd_output = TaskService.view(arg)
 
     def do_edit(self, arg):
         """edit the given task
         """
-        if not arg:
-            arg = Selector.select('-DONE')
+        arg = self.fallback_select(arg, '-DONE')
         if arg:
             TaskService.edit(arg)
 
     def do_start(self, arg):
         """start the given task
         """
-        if not arg:
-            arg = Selector.select('+PENDING -ACTIVE')
+        arg = self.fallback_select(arg, '+PENDING -ACTIVE')
         if arg:
             TaskService.start(arg)
 
     def do_stop(self, arg):
         """stop the given task
         """
-        if not arg:
-            arg = Selector.select('+ACTIVE')
+        arg = self.fallback_select(arg, '+ACTIVE')
         if arg:
             TaskService.stop(arg)
 
     def do_done(self, arg):
         """finish the given task
         """
-        if not arg:
-            arg = Selector.select('+ACTIVE')
+        arg = self.fallback_select(arg, '+ACTIVE')
         if arg:
             TaskService.done(arg)
 
     def do_annotate(self, arg):
         """annotate the given task
         """
-        if not arg:
-            arg = Selector.select('-DONE')
+        arg = self.fallback_select(arg, '-DONE')
         if arg:
             annotation = self.input('annotation')
             if annotation:
@@ -189,6 +203,12 @@ class TaskQM(Cmd):
             (not line or line.split()[0] not in self.NON_BOARD_COMMANDS)
             and not self._cmd_output
         )
+
+    def fallback_select(self, arg, query):
+        if arg:
+            return arg
+
+        return Selector.select(query, project=self.project)
 
     def get_filters(self):
         filters = ''
