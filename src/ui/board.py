@@ -1,20 +1,20 @@
 from src.services import TaskService
-from src.settings import Settings
 from .column import ColumnGroup
 
 
 class Board(object):
-    def __init__(self, name, query):
+    def __init__(self, name, query, columns):
         self.name = name
         self.query = query
-        self._col_map = {c.display_name: c.name for c in Settings.COLUMNS}
+        self.columns = columns
+        self._col_map = {c.display_name: c.name for c in columns}
 
     def count(self):
         return len(TaskService.get_tasks(query=self.query))
 
     def render(self, filters, order):
         tasks = self._get_sorted_tasks(filters, order)
-        print(ColumnGroup(tasks).render())
+        print(ColumnGroup(tasks, self.columns).render())
 
     def _get_sorted_tasks(self, filters, order):
         tasks = TaskService.get_tasks(query=f'{self.query} {filters}')

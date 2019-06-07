@@ -9,22 +9,22 @@ class StatusLine(object):
     INACTIVE_BOARD_FG = Color.WHITE
     INACTIVE_BOARD_BG = Color.BLACK
 
-    def __init__(self, taskqm):
-        self._taskqm = taskqm
+    def __init__(self, board_names):
+        self._board_names = board_names
 
-    def render(self):
+    def render(self, board, order, project):
         div = Divider(Settings.THEME_COLOR)
         line = ['\n']
 
         sections = []
-        for board_section in self._board_sections():
+        for board_section in self._board_sections(board):
             sections.extend([board_section, div])
         sections.pop()
-        sections.append(self._order_section())
+        sections.append(self._order_section(order))
 
         line.append(self._render_sections(sections))
         line.append('  ')
-        line.append(self._render_sections([self._project_section()]))
+        line.append(self._render_sections([self._project_section(project)]))
 
         return ''.join(line + ['\n'])
 
@@ -34,27 +34,24 @@ class StatusLine(object):
             line.append(section.render(idx, sections))
         return ''.join(line)
 
-    def _board_sections(self):
+    def _board_sections(self, board):
         def active(b):
-            return b == self._taskqm.board
+            return b == board
         return [
             Section(
                 b,
                 self.ACTIVE_BOARD_FG if active(b) else self.INACTIVE_BOARD_FG,
                 self.ACTIVE_BOARD_BG if active(b) else self.INACTIVE_BOARD_BG
             )
-            for b in self._taskqm.BOARD_NAMES
+            for b in self._board_names
         ]
 
-    def _project_section(self):
-        project_name = self.ALL_PROJECTS
-        if self._taskqm.project:
-            project_name = self._taskqm.project
+    def _project_section(self, project):
+        project_name = project or self.ALL_PROJECTS
         return Section(f'{project_name}', Color.BLACK, Settings.PROJECT_COLOR)
 
-    def _order_section(self):
-        return Section(
-            f'{self._taskqm.order}', Color.BLACK, Settings.THEME_COLOR)
+    def _order_section(self, order):
+        return Section(f'{order}', Color.BLACK, Settings.THEME_COLOR)
 
 
 class Section(object):

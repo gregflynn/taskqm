@@ -37,8 +37,8 @@ class Column(object):
 class ColumnGroup(object):
     PADDING = ' ' * Settings.PADDING
 
-    def __init__(self, tasks, column_configs=None):
-        self.columns = [Column(c) for c in column_configs or Settings.COLUMNS]
+    def __init__(self, tasks, column_configs):
+        self.columns = [Column(c) for c in column_configs]
         for task in tasks:
             for col in self.columns:
                 col.add(task)

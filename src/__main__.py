@@ -13,14 +13,6 @@ class TaskQM(Cmd):
     doc_header = Color.paint(Settings.THEME_COLOR, 'Commands: [help command]')
     ruler = ''
 
-    BOARD_NAMES = ['pend', 'start', 'done']
-    BOARDS = {
-        'pend': Board('pend', '+PENDING -ACTIVE'),
-        'start': Board('start', '+ACTIVE'),
-        'done': Board('done', '+DONE')
-    }
-    DEFAULT_BOARD = 'start'
-    BACKUP_BOARD = 'pend'
     PROJECTS = set(TaskService.get_projects())
     DEFAULT_ORDER = 'score-'
 
@@ -41,12 +33,27 @@ class TaskQM(Cmd):
         self.order = self.DEFAULT_ORDER
         self._cmd_output = None
 
-        if self.BOARDS[self.DEFAULT_BOARD].count():
-            self.board = self.DEFAULT_BOARD
-        else:
-            self.board = self.BACKUP_BOARD
+        self._board_switches = {}
+        self._board_map = {}
+        self._board_names = []
+        self.board = None
 
-        self._status = StatusLine(self)
+        for board_config in Settings.BOARDS:
+            name = board_config.name
+            self._board_names.append(name)
+            self._board_switches[name[0]] = name
+            self._board_switches[name] = name
+            self._board_map[name] = Board(
+                name, board_config.query, board_config.columns
+            )
+            if board_config.default:
+                self.board = name
+
+        self.board = self.board or self._board_names[0]
+        if self._board_map[self.board].count() == 0:
+            self.board = self._board_names[0]
+
+        self._status = StatusLine(self._board_names)
         self.precmd('')
         self.postcmd(False, '')
 
@@ -74,7 +81,7 @@ class TaskQM(Cmd):
     def complete_order(self, text, line, begidx, endidx):
         matches = []
 
-        for c in Settings.COLUMNS:
+        for c in self._board_map[self.board].columns:
             col = c.get('display_name') or c.get('name')
             if not col:
                 continue
@@ -89,14 +96,13 @@ class TaskQM(Cmd):
     def do_board(self, arg):
         """select the board to view
         """
-        if arg not in self.BOARDS:
-            print(f'Unknown board specified: {arg}')
-            arg = self.DEFAULT_BOARD
+        if arg not in self._board_map:
+            arg = self._board_names[0]
         self.board = arg
 
     def complete_board(self, text, line, begidx, endidx):
         return sorted([
-            name for name in self.BOARD_NAMES if name.startswith(text)
+            name for name in self._board_names if name.startswith(text)
         ])
 
     def do_burndown(self, arg):
@@ -254,8 +260,8 @@ class TaskQM(Cmd):
             self._cmd_output = None
 
         if print_board:
-            print(self._status.render())
-            self.BOARDS[self.board].render(self.get_filters(), self.order)
+            print(self._status.render(self.board, self.order, self.project))
+            self._board_map[self.board].render(self.get_filters(), self.order)
         return stop
 
     def emptyline(self):
@@ -270,14 +276,9 @@ class TaskQM(Cmd):
         except Exception:
             pass
 
-        if line == 'q':
-            self.board = self.BOARD_NAMES[0]
-        elif line == 'w':
-            self.board = self.BOARD_NAMES[1]
-        elif line == 'e':
-            self.board = self.BOARD_NAMES[2]
-
-        print('default')
+        board_name = self._board_switches.get(line)
+        if board_name:
+            self.board = board_name
 
 
 if __name__ == '__main__':
