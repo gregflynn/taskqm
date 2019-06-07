@@ -1,6 +1,6 @@
 from src.services import TaskService
 from src.settings import Settings
-from .column import Column
+from .column import ColumnGroup
 
 
 class Board(object):
@@ -14,9 +14,7 @@ class Board(object):
 
     def render(self, filters, order):
         tasks = self._get_sorted_tasks(filters, order)
-        columns = Column.build_column_group(tasks)
-        print(Column.column_group_header(columns))
-        print(Column.column_group_content(columns))
+        print(ColumnGroup(tasks).render())
 
     def _get_sorted_tasks(self, filters, order):
         tasks = TaskService.get_tasks(query=f'{self.query} {filters}')

@@ -2,22 +2,20 @@ from subprocess import CalledProcessError, check_output
 
 from src.settings import Settings, ColumnConfig
 from src.services import TaskService
-from .column import Column
+from .column import ColumnGroup
 
 
 class Selector(object):
     @classmethod
     def select(cls, query=None, project=None):
-        columns = Column.build_column_group(
+        tasks = ColumnGroup(
             [
                 t for t in TaskService.get_tasks(query=query)
                 if project is None
                 or (t.get('project') or '').startswith(project)
             ],
-            columns=[ColumnConfig('id')] + Settings.COLUMNS
-        )
-
-        tasks = Column.column_group_content(columns)
+            [ColumnConfig('id')] + Settings.COLUMNS
+        ).render(header=False)
 
         try:
             line = check_output(
