@@ -1,25 +1,17 @@
 import os
 
+from src.util import Color
+from .column_config import ColumnConfig
+
 
 USER_SETTINGS_PATH = f'{os.getenv("HOME")}/.taskqmrc'
 SYSTEM_SETTINGS_PATH = '/etc/taskqmrc'
 
 
-class ColumnConfig(object):
-    LEFT = 'l'
-    RIGHT = 'r'
-
-    def __init__(self, name, display_name=None, justify=None, fmt=None):
-        if not display_name:
-            display_name = name
-
-        self.name = name
-        self.display_name = display_name
-        self.justify = justify or self.LEFT
-        self.fmt = fmt or '{}'
-
-
 class Settings(object):
+    THEME_COLOR = Color.ORANGE
+    PROJECT_COLOR = Color.PURPLE
+    FILTERS_COLOR = Color.RED
     PROMPT = '>'
     TRUE = ''
     FALSE = ''
@@ -48,3 +40,13 @@ class Settings(object):
             'query': '+COMPLETED'
         }
     ]
+    CELL_COLORS = {
+        'type': {
+            'FTR': Color.GREEN,
+            'IMP': Color.PURPLE,
+            'BUG': (Color.WHITE, Color.RED)
+        },
+        'description_count': {
+            None: Color.YELLOW
+        }
+    }

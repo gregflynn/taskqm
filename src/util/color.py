@@ -5,7 +5,7 @@ class Color(object):
     YELLOW = '33'
     BLUE = '34'
     PURPLE = '35'
-    CYAN = '36'
+    ORANGE = '36'
     WHITE = '37'
 
     @staticmethod

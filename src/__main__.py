@@ -3,13 +3,14 @@ from subprocess import run
 
 from src.services import TaskService
 from src.settings import Settings
-from src.ui import Color, Board, StatusLine, Selector
+from src.ui import Board, StatusLine, Selector
+from src.util import Color
 
 
 class TaskQM(Cmd):
     intro = ''
-    prompt = Color.paint(Color.BLUE, Settings.PROMPT + ' ')
-    doc_header = Color.paint(Color.BLUE, 'Commands: [help command]')
+    prompt = Color.paint(Settings.THEME_COLOR, Settings.PROMPT + ' ')
+    doc_header = Color.paint(Settings.THEME_COLOR, 'Commands: [help command]')
     ruler = ''
 
     BOARD_NAMES = ['pend', 'start', 'done']
@@ -228,7 +229,7 @@ class TaskQM(Cmd):
             t = f'{text} [{default}]: '
         else:
             t = f'{text}: '
-        return input(Color.paint(Color.BLUE, t)) or default
+        return input(Color.paint(Settings.THEME_COLOR, t)) or default
 
     def output(self, text):
         self._cmd_output = text

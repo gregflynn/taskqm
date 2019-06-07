@@ -1,9 +1,10 @@
-from .color import Color
+from src.settings import Settings
+from src.util import Color
 
 
 class StatusLine(object):
     ALL_PROJECTS = 'all'
-    ACTIVE_BOARD_FG = Color.BLUE
+    ACTIVE_BOARD_FG = Settings.THEME_COLOR
     ACTIVE_BOARD_BG = Color.BLACK
     INACTIVE_BOARD_FG = Color.WHITE
     INACTIVE_BOARD_BG = Color.BLACK
@@ -12,18 +13,18 @@ class StatusLine(object):
         self._taskqm = taskqm
 
     def render(self):
-        div = Divider(Color.BLUE)
+        div = Divider(Settings.THEME_COLOR)
         line = ['\n']
 
         sections = []
         for board_section in self._board_sections():
             sections.extend([board_section, div])
         sections.pop()
+        sections.append(self._order_section())
 
         line.append(self._render_sections(sections))
         line.append('  ')
-        line.append(self._render_sections([
-            self._project_section(), self._order_section()]))
+        line.append(self._render_sections([self._project_section()]))
 
         return ''.join(line + ['\n'])
 
@@ -49,10 +50,11 @@ class StatusLine(object):
         project_name = self.ALL_PROJECTS
         if self._taskqm.project:
             project_name = self._taskqm.project
-        return Section(f'{project_name}', Color.BLACK, Color.PURPLE)
+        return Section(f'{project_name}', Color.BLACK, Settings.PROJECT_COLOR)
 
     def _order_section(self):
-        return Section(f'{self._taskqm.order}', Color.BLACK, Color.RED)
+        return Section(
+            f'{self._taskqm.order}', Color.BLACK, Settings.THEME_COLOR)
 
 
 class Section(object):
