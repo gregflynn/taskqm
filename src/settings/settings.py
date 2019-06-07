@@ -33,9 +33,14 @@ class Settings(object):
     PADDING = 2
     SELECTOR_COLUMNS = COLUMNS
     BOARDS = [
-        BoardConfig('ready', '+PENDING -ACTIVE', COLUMNS),
-        BoardConfig('current', '+ACTIVE', CURRENT_COLUMNS, default=True),
-        BoardConfig('done', '+COMPLETED', DONE_COLUMNS)
+        BoardConfig(
+            'ready', '+PENDING -ACTIVE', COLUMNS, order='project,score-'
+        ),
+        BoardConfig(
+            'current', '+ACTIVE', CURRENT_COLUMNS,
+            default=True, order='project,start-'
+        ),
+        BoardConfig('done', '+COMPLETED', DONE_COLUMNS, order='end-')
     ]
     CELL_COLORS = {
         'type': {

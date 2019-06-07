@@ -12,7 +12,7 @@ class StatusLine(object):
     def __init__(self, board_names):
         self._board_names = board_names
 
-    def render(self, board, order, project):
+    def render(self, board, order, project, filters):
         div = Divider(Settings.THEME_COLOR)
         line = ['\n']
 
@@ -24,7 +24,11 @@ class StatusLine(object):
 
         line.append(self._render_sections(sections))
         line.append('  ')
-        line.append(self._render_sections([self._project_section(project)]))
+
+        extra_sections = [self._project_section(project)]
+        if filters:
+            extra_sections.append(self._filter_section(filters))
+        line.append(self._render_sections(extra_sections))
 
         return ''.join(line + ['\n'])
 
@@ -51,7 +55,12 @@ class StatusLine(object):
         return Section(f'{project_name}', Color.BLACK, Settings.PROJECT_COLOR)
 
     def _order_section(self, order):
-        return Section(f'{order}', Color.BLACK, Settings.THEME_COLOR)
+        order = ','.join([f'{c}{d}' for c, d in order])
+        return Section(order, Color.BLACK, Settings.THEME_COLOR)
+
+    def _filter_section(self, filters):
+        f = filters.replace(' ', ',')
+        return Section(f, Color.BLACK, Settings.FILTERS_COLOR)
 
 
 class Section(object):

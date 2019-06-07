@@ -14,7 +14,6 @@ class TaskQM(Cmd):
     ruler = ''
 
     PROJECTS = set(TaskService.get_projects())
-    DEFAULT_ORDER = 'score-'
 
     DEFAULT_PROJECT = 'home'
     UDA_DEFAULTS = {
@@ -30,7 +29,7 @@ class TaskQM(Cmd):
     def __init__(self):
         super().__init__()
         self.project = None
-        self.order = self.DEFAULT_ORDER
+        self.filter = None
         self._cmd_output = None
 
         self._board_switches = {}
@@ -44,21 +43,28 @@ class TaskQM(Cmd):
             self._board_switches[name[0]] = name
             self._board_switches[name] = name
             self._board_map[name] = Board(
-                name, board_config.query, board_config.columns
+                name,
+                board_config.query,
+                board_config.columns,
+                board_config.order
             )
             if board_config.default:
                 self.board = name
 
         self.board = self.board or self._board_names[0]
-        if self._board_map[self.board].count() == 0:
+        if self.current_board.count() == 0:
             self.board = self._board_names[0]
 
         self._status = StatusLine(self._board_names)
         self.precmd('')
         self.postcmd(False, '')
 
+    @property
+    def current_board(self):
+        return self._board_map[self.board]
+
     #
-    # Project
+    # Global
     #
     def do_project(self, arg):
         """select the project to filter on
@@ -70,25 +76,10 @@ class TaskQM(Cmd):
             name for name in self.PROJECTS if name.startswith(text)
         ])
 
-    #
-    # Ordering
-    #
-    def do_order(self, arg):
-        """set the board task ordering
+    def do_filter(self, arg):
+        """filter the tasks that are shown on boards
         """
-        self.order = arg or self.DEFAULT_ORDER
-
-    def complete_order(self, text, line, begidx, endidx):
-        matches = []
-
-        for c in self._board_map[self.board].columns:
-            col = c.get('display_name') or c.get('name')
-            if not col:
-                continue
-            if col.startswith(text):
-                matches.append(col)
-
-        return matches
+        self.filter = arg if arg else None
 
     #
     # Board
@@ -105,22 +96,22 @@ class TaskQM(Cmd):
             name for name in self._board_names if name.startswith(text)
         ])
 
-    def do_burndown(self, arg):
-        """show a burndown graph
+    def do_order(self, arg):
+        """set the board task ordering
         """
-        arg = arg or self.DEFAULT_BURNDOWN
-        if arg not in self.BURNDOWN_PERIODS:
-            self.output('Unknown Burndown Period')
-            return
-        TaskService.burndown(arg)
+        self.current_board.set_order(arg)
 
-    def complete_burndown(self, text, line, begidx, endidx):
-        return sorted([p for p in self.BURNDOWN_PERIODS if p.startswith(text)])
+    def complete_order(self, text, line, begidx, endidx):
+        matches = []
 
-    def do_summary(self, arg):
-        """show project summaries
-        """
-        TaskService.summary()
+        for c in self.current_board.columns:
+            col = c.display_name
+            if not col:
+                continue
+            if col.startswith(text):
+                matches.append(col)
+
+        return matches
 
     #
     # Task Commands
@@ -201,6 +192,23 @@ class TaskQM(Cmd):
         """
         self.output(TaskService.task(arg))
 
+    def do_burndown(self, arg):
+        """show a burndown graph
+        """
+        arg = arg or self.DEFAULT_BURNDOWN
+        if arg not in self.BURNDOWN_PERIODS:
+            self.output('Unknown Burndown Period')
+            return
+        TaskService.burndown(arg)
+
+    def complete_burndown(self, text, line, begidx, endidx):
+        return sorted([p for p in self.BURNDOWN_PERIODS if p.startswith(text)])
+
+    def do_summary(self, arg):
+        """show project summaries
+        """
+        TaskService.summary()
+
     #
     # Help
     #
@@ -227,6 +235,9 @@ class TaskQM(Cmd):
 
         if self.project:
             filters += f' project:{self.project}'
+
+        if self.filter:
+            filters += self.filter
 
         return filters
 
@@ -260,8 +271,10 @@ class TaskQM(Cmd):
             self._cmd_output = None
 
         if print_board:
-            print(self._status.render(self.board, self.order, self.project))
-            self._board_map[self.board].render(self.get_filters(), self.order)
+            print(self._status.render(
+                self.board, self.current_board.order, self.project, self.filter
+            ))
+            self.current_board.render(self.get_filters())
         return stop
 
     def emptyline(self):

@@ -3,23 +3,28 @@ from .column import ColumnGroup
 
 
 class Board(object):
-    def __init__(self, name, query, columns):
+    def __init__(self, name, query, columns, order):
         self.name = name
         self.query = query
         self.columns = columns
+        self.order = self._parse_order(order)
         self._col_map = {c.display_name: c.name for c in columns}
+        self._default_order = self.order
 
     def count(self):
         return len(TaskService.get_tasks(query=self.query))
 
-    def render(self, filters, order):
-        tasks = self._get_sorted_tasks(filters, order)
+    def set_order(self, order):
+        self.order = self._parse_order(order) if order else self._default_order
+
+    def render(self, filters):
+        tasks = self._get_sorted_tasks(filters)
         print(ColumnGroup(tasks, self.columns).render())
 
-    def _get_sorted_tasks(self, filters, order):
+    def _get_sorted_tasks(self, filters):
         tasks = TaskService.get_tasks(query=f'{self.query} {filters}')
 
-        for o, directon in reversed(self._parse_order(order)):
+        for o, directon in reversed(self.order):
             key = self._col_map.get(o) or o
             tasks = sorted(
                 tasks, key=lambda t: t.get(key), reverse=directon == '-'
