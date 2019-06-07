@@ -189,6 +189,11 @@ class TaskQM(Cmd):
         if output:
             self.output(output)
 
+    def do_task(self, arg):
+        """talk to task directly
+        """
+        self.output(TaskService.task(arg))
+
     #
     # Help
     #

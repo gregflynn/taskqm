@@ -86,3 +86,7 @@ class TaskService(object):
     @classmethod
     def summary(cls):
         run(f'{cls.CMD} {cls.FORCE_COLOR} summary | less -r', shell=True)
+
+    @classmethod
+    def task(cls, args):
+        return check_output([cls.CMD, *args.split()])
