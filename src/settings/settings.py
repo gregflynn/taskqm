@@ -9,16 +9,18 @@ USER_SETTINGS_PATH = f'{os.getenv("HOME")}/.taskqmrc'
 SYSTEM_SETTINGS_PATH = '/etc/taskqmrc'
 COLUMNS = [
     ColumnConfig('id', display_name='#', justify=ColumnConfig.RIGHT),
+    ColumnConfig('project'),
+    ColumnConfig('description_count', display_name='description'),
     ColumnConfig('type'),
     ColumnConfig('size'),
-    ColumnConfig('project'),
-    ColumnConfig('tags'),
-    ColumnConfig('description_count', display_name='description'),
+    ColumnConfig('priority', display_name='p'),
     ColumnConfig(
         'urgency',
-        display_name='score', justify=ColumnConfig.RIGHT, fmt='{:.1f}')
+        display_name='score', justify=ColumnConfig.RIGHT, fmt='{:.1f}'),
+    ColumnConfig('tags')
 ]
-CURRENT_COLUMNS = COLUMNS[:5] + [ColumnConfig('description')] + COLUMNS[6:]
+CURRENT_COLUMNS = COLUMNS[:2] + [ColumnConfig('description')] + COLUMNS[3:]
+DONE_COLUMNS = [ColumnConfig('uuid', display_name='#')] + COLUMNS[1:]
 
 
 class Settings(object):
@@ -32,8 +34,8 @@ class Settings(object):
     SELECTOR_COLUMNS = COLUMNS
     BOARDS = [
         BoardConfig('ready', '+PENDING -ACTIVE', COLUMNS),
-        BoardConfig('curnt', '+ACTIVE', CURRENT_COLUMNS, default=True),
-        BoardConfig('done', '+COMPLETED', COLUMNS)
+        BoardConfig('current', '+ACTIVE', CURRENT_COLUMNS, default=True),
+        BoardConfig('done', '+COMPLETED', DONE_COLUMNS)
     ]
     CELL_COLORS = {
         'type': {
