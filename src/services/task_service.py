@@ -89,7 +89,7 @@ class TaskService(object):
 
     @classmethod
     def task(cls, args):
-        return check_output([cls.CMD, *args.split()])
+        return check_output([cls.CMD, *args.split()]).decode('utf-8')
 
     @classmethod
     def sync(cls):
