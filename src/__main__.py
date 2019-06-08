@@ -187,6 +187,11 @@ class TaskQM(Cmd):
         if output:
             self.output(output)
 
+    def do_sync(self, arg):
+        """sync tasks to the server
+        """
+        self.output(TaskService.sync())
+
     def do_task(self, arg):
         """talk to task directly
         """
@@ -295,7 +300,9 @@ class TaskQM(Cmd):
 
 
 if __name__ == '__main__':
+    TaskService.sync()
     try:
         TaskQM().cmdloop()
     except KeyboardInterrupt:
         pass
+    TaskService.sync()
