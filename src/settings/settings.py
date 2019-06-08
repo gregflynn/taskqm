@@ -19,7 +19,11 @@ COLUMNS = [
         display_name='score', justify=ColumnConfig.RIGHT, fmt='{:.1f}'),
     ColumnConfig('tags')
 ]
-CURRENT_COLUMNS = COLUMNS[:2] + [ColumnConfig('description')] + COLUMNS[3:]
+CURRENT_COLUMNS = (
+    COLUMNS[:2]
+    + [ColumnConfig('description_annotate', display_name='description')]
+    + COLUMNS[3:]
+)
 DONE_COLUMNS = [ColumnConfig('uuid', display_name='#')] + COLUMNS[1:]
 
 
@@ -27,10 +31,16 @@ class Settings(object):
     THEME_COLOR = Color.ORANGE
     PROJECT_COLOR = Color.PURPLE
     FILTERS_COLOR = Color.RED
+
+    ANNOTATION_DATE_COLOR = Color.ORANGE
+    ANNOTATION_INDENT = 2
+    ANNOTATION_DATE_FORMAT = '%m/%d'
+
     PROMPT = '>'
     TRUE = ''
     FALSE = ''
     PADDING = 2
+
     SELECTOR_COLUMNS = COLUMNS
     BOARDS = [
         BoardConfig(
@@ -49,6 +59,9 @@ class Settings(object):
             'BUG': (Color.WHITE, Color.RED)
         },
         'description_count': {
+            None: Color.YELLOW
+        },
+        'description_annotate': {
             None: Color.YELLOW
         }
     }

@@ -20,18 +20,15 @@ class Column(object):
 
         self.cells.append(cell)
 
-    def render(self, idx):
-        return self.cells[idx].render(self.width)
-
-    def header(self):
-        return self._header_cell.render(self.width)
-
-    def header_line(self):
-        return '-' * self.width
+    def render(self, row_num, line_num):
+        return self.cells[row_num].render(self.width, line_num)
 
     @property
     def rows(self):
         return len(self.cells)
+
+    def row_height(self, row_num):
+        return self.cells[row_num].height
 
 
 class ColumnGroup(object):
@@ -43,18 +40,25 @@ class ColumnGroup(object):
             for col in self.columns:
                 col.add(task)
 
+    @property
+    def rows(self):
+        return self.columns[0].rows
+
     def render(self, header=True):
         rendered_lines = []
 
-        for idx in range(self.columns[0].rows):
-            if not header and idx < 2:
+        for row_num in range(self.rows):
+            if not header and row_num < 2:
                 continue
 
-            rendered_cols = []
+            cell_lines = max(c.row_height(row_num) for c in self.columns)
 
-            for col in self.columns:
-                rendered_cols.append(col.render(idx))
+            for line_num in range(cell_lines):
+                rendered_cols = []
 
-            rendered_lines.append(self.PADDING.join(rendered_cols))
+                for col in self.columns:
+                    rendered_cols.append(col.render(row_num, line_num))
+
+                rendered_lines.append(self.PADDING.join(rendered_cols))
 
         return '\n'.join(rendered_lines)
