@@ -13,7 +13,7 @@ COLUMNS = [
     ColumnConfig('description_count', display_name='description'),
     ColumnConfig('type'),
     ColumnConfig('size'),
-    ColumnConfig('priority', display_name='p'),
+    ColumnConfig('priority', display_name='\uf527'),
     ColumnConfig(
         'urgency',
         display_name='score', justify=ColumnConfig.RIGHT, fmt='{:.1f}'),
@@ -36,8 +36,8 @@ class Settings(object):
     ANNOTATION_INDENT = 2
     ANNOTATION_DATE_FORMAT = '%m/%d'
 
-    PROMPT = '>'
-    TRUE = ''
+    PROMPT = ''
+    TRUE = '\uf62b'
     FALSE = ''
     PADDING = 2
 
