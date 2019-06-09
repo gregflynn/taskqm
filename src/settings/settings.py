@@ -11,6 +11,7 @@ COLUMNS = [
     ColumnConfig('id', display_name='#', justify=ColumnConfig.RIGHT),
     ColumnConfig('project'),
     ColumnConfig('description_count', display_name='description'),
+    ColumnConfig('is_blocked', display_name=''),
     ColumnConfig('type'),
     ColumnConfig('size'),
     ColumnConfig('priority', display_name='\uf527'),
@@ -22,7 +23,7 @@ COLUMNS = [
 CURRENT_COLUMNS = (
     COLUMNS[:2]
     + [ColumnConfig('description_annotate', display_name='description')]
-    + COLUMNS[3:]
+    + COLUMNS[4:]
 )
 DONE_COLUMNS = [ColumnConfig('uuid', display_name='#')] + COLUMNS[1:]
 
@@ -63,5 +64,8 @@ class Settings(object):
         },
         'description_annotate': {
             None: Color.YELLOW
+        },
+        'is_blocked': {
+            None: Color.RED
         }
     }

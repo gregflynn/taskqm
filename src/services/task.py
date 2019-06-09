@@ -16,6 +16,10 @@ class Task(object):
         return 'start' in self._data and len(self._data['start']) > 0
 
     @property
+    def is_blocked(self):
+        return self._data.get('depends') is not None
+
+    @property
     def description_count(self):
         description = self._data.get('description', 'none')
         num_annotations = len(self._data.get('annotations', []))
