@@ -12,13 +12,10 @@ if COLUMNS[0].name != 'id':
 
 class Selector(object):
     @classmethod
-    def select(cls, query=None, project=None):
-        tasks = ColumnGroup(
-            cls._get_tasks(query, project), COLUMNS).render(header=False)
-
+    def select(cls, query='+PENDING', project=None, header=''):
         try:
-            line = check_output(
-                f'echo "{tasks}" | fzf --ansi', shell=True).decode('utf-8')
+            column_group = ColumnGroup(cls._get_tasks(query, project), COLUMNS)
+            line = cls._select_task(column_group, header)
             return line.split()[0]
         except CalledProcessError:
             return None
@@ -33,3 +30,15 @@ class Selector(object):
                 tasks.append(task)
 
         return tasks
+
+    @classmethod
+    def _select_task(cls, column_group, header):
+        hlines = 2
+        tasks = column_group.render()
+
+        if header:
+            tasks = f'{header}\n\n{tasks}'
+            hlines = 4
+
+        cmd = f'echo "{tasks}" | fzf --ansi --header-lines={hlines} --reverse --inline-info' # noqa
+        return check_output(cmd, shell=True).decode('utf8')

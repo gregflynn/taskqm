@@ -119,46 +119,58 @@ class TaskQM(Cmd):
     def do_view(self, arg):
         """view details of a task
         """
-        arg = self.fallback_select(arg, '-DONE')
-        if arg:
-            self._cmd_output = TaskService.view(arg)
+        self.fallback_select(
+            'View Task',
+            lambda tid: self.output(TaskService.view(tid)),
+            arg=arg
+        )
 
     def do_edit(self, arg):
         """edit the given task
         """
-        arg = self.fallback_select(arg, '-DONE')
-        if arg:
-            TaskService.edit(arg)
+        self.fallback_select(
+            'Edit Task', lambda tid: TaskService.edit(tid), arg=arg
+        )
 
     def do_start(self, arg):
         """start the given task
         """
-        arg = self.fallback_select(arg, '+PENDING -ACTIVE')
-        if arg:
-            TaskService.start(arg)
+        self.fallback_select(
+            'Start Task',
+            lambda tid: TaskService.start(tid),
+            arg=arg,
+            query='+PENDING -ACTIVE'
+        )
 
     def do_stop(self, arg):
         """stop the given task
         """
-        arg = self.fallback_select(arg, '+ACTIVE')
-        if arg:
-            TaskService.stop(arg)
+        self.fallback_select(
+            'Stop Task',
+            lambda tid: TaskService.stop(tid),
+            arg=arg,
+            query='+ACTIVE'
+        )
 
     def do_done(self, arg):
         """finish the given task
         """
-        arg = self.fallback_select(arg, '+ACTIVE')
-        if arg:
-            TaskService.done(arg)
+        self.fallback_select(
+            'Finish Task',
+            lambda tid: TaskService.done(tid),
+            arg=arg,
+            query='+ACTIVE'
+        )
 
     def do_annotate(self, arg):
         """annotate the given task
         """
-        arg = self.fallback_select(arg, '-DONE')
-        if arg:
+        def set_annotation(tid):
             annotation = self.input('annotation')
             if annotation:
-                TaskService.annotate(arg, annotation)
+                TaskService.annotate(tid, annotation)
+
+        self.fallback_select('Annotate Task', set_annotation, arg=arg)
 
     def do_add(self, arg):
         """add a task
@@ -186,6 +198,17 @@ class TaskQM(Cmd):
             description, project=project, tags=tags, udas=udas)
         if output:
             self.output(output)
+
+    def do_depend(self, arg):
+        """mark a task dependent on another
+        """
+        def select_parent(tid):
+            def set_depends(parent_tid):
+                TaskService.depends(tid, parent_tid)
+
+            self.fallback_select('Precursor Task', set_depends)
+
+        self.fallback_select('Dependent Task', select_parent)
 
     def do_sync(self, arg):
         """sync tasks to the server
@@ -229,11 +252,14 @@ class TaskQM(Cmd):
             and not self._cmd_output
         )
 
-    def fallback_select(self, arg, query):
-        if arg:
-            return arg
+    def fallback_select(self, header, action, arg=None, query=None):
+        if not arg:
+            arg = Selector.select(
+                query=query, project=self.project, header=header
+            )
 
-        return Selector.select(query, project=self.project)
+        if arg:
+            action(arg)
 
     def get_filters(self):
         filters = ''

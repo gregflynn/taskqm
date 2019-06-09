@@ -94,3 +94,7 @@ class TaskService(object):
     @classmethod
     def sync(cls):
         return check_output([cls.CMD, 'sync']).decode('utf-8')
+
+    @classmethod
+    def depends(cls, task, dependency):
+        run([cls.CMD, task, 'modify', f'depends:{dependency}'])
