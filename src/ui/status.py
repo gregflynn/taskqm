@@ -25,7 +25,10 @@ class StatusLine(object):
         line.append(self._render_sections(sections))
         line.append('  ')
 
-        extra_sections = [self._project_section(project)]
+        extra_sections = []
+        if project:
+            extra_sections.append(self._project_section(project))
+
         if filters:
             extra_sections.append(self._filter_section(filters))
         line.append(self._render_sections(extra_sections))
@@ -51,8 +54,7 @@ class StatusLine(object):
         ]
 
     def _project_section(self, project):
-        project_name = project or self.ALL_PROJECTS
-        return Section(f'{project_name}', Color.BLACK, Settings.PROJECT_COLOR)
+        return Section(f'{project}', Color.BLACK, Settings.PROJECT_COLOR)
 
     def _order_section(self, order):
         order = ','.join([f'{c}{d}' for c, d in order])

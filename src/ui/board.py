@@ -26,8 +26,14 @@ class Board(object):
 
         for o, directon in reversed(self.order):
             key = self._col_map.get(o) or o
+            reverse = directon == '-'
             tasks = sorted(
-                tasks, key=lambda t: t.get(key), reverse=directon == '-'
+                tasks,
+                # https://stackoverflow.com/a/18411610
+                key=lambda t: (
+                    t.get(key) is not None if reverse
+                    else t.get(key) is None, t.get(key)),
+                reverse=reverse
             )
 
         return tasks

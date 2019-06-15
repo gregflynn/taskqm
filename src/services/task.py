@@ -12,12 +12,19 @@ class Task(object):
         self._data = data
 
     @property
-    def is_active(self):
+    def active(self):
         return 'start' in self._data and len(self._data['start']) > 0
 
     @property
-    def is_blocked(self):
+    def blocked(self):
         return self._data.get('depends') is not None
+
+    @property
+    def description_smart(self):
+        return (
+            self.description_annotate if self.active
+            else self.description_count
+        )
 
     @property
     def description_count(self):

@@ -9,9 +9,10 @@ USER_SETTINGS_PATH = f'{os.getenv("HOME")}/.taskqmrc'
 SYSTEM_SETTINGS_PATH = '/etc/taskqmrc'
 COLUMNS = [
     ColumnConfig('id', display_name='#', justify=ColumnConfig.RIGHT),
+    ColumnConfig('active', display_name='A'),
     ColumnConfig('project'),
-    ColumnConfig('description_count', display_name='description'),
-    ColumnConfig('is_blocked', display_name=''),
+    ColumnConfig('description_smart', display_name='description'),
+    ColumnConfig('blocked', display_name=''),
     ColumnConfig('type'),
     ColumnConfig('size'),
     ColumnConfig('priority', display_name='\uf527'),
@@ -20,11 +21,6 @@ COLUMNS = [
         display_name='score', justify=ColumnConfig.RIGHT, fmt='{:.1f}'),
     ColumnConfig('tags')
 ]
-CURRENT_COLUMNS = (
-    COLUMNS[:2]
-    + [ColumnConfig('description_annotate', display_name='description')]
-    + COLUMNS[4:]
-)
 DONE_COLUMNS = [ColumnConfig('uuid', display_name='#')] + COLUMNS[1:]
 
 
@@ -45,11 +41,7 @@ class Settings(object):
     SELECTOR_COLUMNS = COLUMNS
     BOARDS = [
         BoardConfig(
-            'ready', '+PENDING -ACTIVE', COLUMNS, order='project,score-'
-        ),
-        BoardConfig(
-            'current', '+ACTIVE', CURRENT_COLUMNS,
-            default=True, order='project,start-'
+            'ready', '+PENDING', COLUMNS, order='active-,project,score-'
         ),
         BoardConfig('done', '+COMPLETED', DONE_COLUMNS, order='end-')
     ]
@@ -65,7 +57,10 @@ class Settings(object):
         'description_annotate': {
             None: Color.YELLOW
         },
-        'is_blocked': {
+        'description_smart': {
+            None: Color.YELLOW
+        },
+        'blocked': {
             None: Color.RED
         }
     }
