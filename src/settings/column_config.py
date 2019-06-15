@@ -3,7 +3,7 @@ class ColumnConfig(object):
     RIGHT = 'r'
 
     def __init__(self, name, display_name=None, justify=None, fmt=None):
-        if not display_name:
+        if display_name is None:
             display_name = name
 
         self.name = name

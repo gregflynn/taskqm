@@ -12,8 +12,8 @@ COLUMNS = [
     ColumnConfig('active', display_name='A'),
     ColumnConfig('project'),
     ColumnConfig('description_smart', display_name='description'),
-    ColumnConfig('blocked', display_name=''),
-    ColumnConfig('type'),
+    ColumnConfig('blocked', display_name=''),
+    ColumnConfig('type', display_name=''),
     ColumnConfig('size'),
     ColumnConfig('priority', display_name='\uf527'),
     ColumnConfig(
@@ -46,10 +46,21 @@ class Settings(object):
         BoardConfig('done', '+COMPLETED', DONE_COLUMNS, order='end-')
     ]
     CELL_COLORS = {
+        'active': {
+            True: Color.GREEN
+        },
         'type': {
             'FTR': Color.GREEN,
             'IMP': Color.PURPLE,
-            'BUG': (Color.WHITE, Color.RED)
+            'BUG': Color.RED,
+            'RES': Color.BLUE
+        },
+        'size': {
+            'XS': Color.GREEN,
+            'S': Color.GREEN,
+            'M': Color.YELLOW,
+            'L': Color.ORANGE,
+            'XL': Color.RED
         },
         'description_count': {
             None: Color.YELLOW
@@ -62,5 +73,27 @@ class Settings(object):
         },
         'blocked': {
             None: Color.RED
+        }
+    }
+    CELL_REPLACEMENTS = {
+        'active': {
+            True: '\ue238'
+        },
+        'blocked': {
+            True: ''
+        },
+        'type': {
+            'BUG': '⚠',
+            'FTR': '★',
+            'IMP': '+',
+            'RES': '🧪',
+            'TSK': ''
+        },
+        'size': {
+            'XS': '████',
+            'S': '█',
+            'M': '██',
+            'L': '███',
+            'XL': '████'
         }
     }

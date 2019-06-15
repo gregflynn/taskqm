@@ -6,11 +6,15 @@ class Cell(object):
     def __init__(self, column_config, item):
         self.justify = column_config.justify
         self.format = column_config.fmt
-        self.item = self._render_cell_value(item)
+        item_key = item[0] if isinstance(item, (list, tuple)) else item
 
         column_colors = Settings.CELL_COLORS.get(column_config.name) or {}
-        self._primary_color = column_colors.get(self.item[0])
+        self._primary_color = column_colors.get(item_key)
         self._backup_color = column_colors.get(None)
+
+        replacements = Settings.CELL_REPLACEMENTS.get(column_config.name) or {}
+        self.item = self._render_cell_value(replacements.get(item_key, item))
+
         self.width = max(len(l) for l in self.item)
         self.height = len(self.item)
 
