@@ -13,9 +13,9 @@ COLUMNS = [
     ColumnConfig('project'),
     ColumnConfig('description_smart', display_name='description'),
     ColumnConfig('blocked', display_name=''),
+    ColumnConfig('priority', display_name=''),
     ColumnConfig('type', display_name=''),
     ColumnConfig('size'),
-    ColumnConfig('priority', display_name='\uf527'),
     ColumnConfig(
         'urgency',
         display_name='score', justify=ColumnConfig.RIGHT, fmt='{:.1f}'),
@@ -25,6 +25,7 @@ DONE_COLUMNS = [ColumnConfig('uuid', display_name='#')] + COLUMNS[1:]
 
 
 class Settings(object):
+    DEFAULT_PROJECT = 'home'
     THEME_COLOR = Color.ORANGE
     PROJECT_COLOR = Color.PURPLE
     FILTERS_COLOR = Color.RED
@@ -62,6 +63,10 @@ class Settings(object):
             'L': Color.ORANGE,
             'XL': Color.RED
         },
+        'priority': {
+            'H': Color.RED,
+            'L': Color.BLUE
+        },
         'description_count': {
             None: Color.YELLOW
         },
@@ -95,5 +100,20 @@ class Settings(object):
             'M': '██',
             'L': '███',
             'XL': '████'
+        },
+        'priority': {
+            'H': '\uf062',
+            'M': '',
+            'L': '\uf063'
         }
+    }
+    UDA_DEFAULTS = {
+        'priority': 'M',
+        'size': 'M',
+        'type': 'TSK'
+    }
+    UDA_INPUTS = {
+        'priority': 'H,M,L',
+        'size': 'XS,S,M,L,XL',
+        'type': 'BUG,TSK,FTR,IMP,RES'
     }

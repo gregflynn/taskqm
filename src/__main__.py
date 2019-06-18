@@ -14,12 +14,6 @@ class TaskQM(Cmd):
     ruler = ''
 
     PROJECTS = set(TaskService.get_projects())
-
-    DEFAULT_PROJECT = 'home'
-    UDA_DEFAULTS = {
-        'type': 'TSK'
-    }
-
     DEFAULT_BURNDOWN = 'daily'
     BURNDOWN_PERIODS = {'daily', 'weekly', 'monthly'}
 
@@ -181,12 +175,14 @@ class TaskQM(Cmd):
             return
 
         project = self.input(
-            'project', default=self.project or self.DEFAULT_PROJECT)
+            'project', default=self.project or Settings.DEFAULT_PROJECT)
 
         udas = {}
 
         for uda in TaskService.get_udas():
-            uda_value = self.input(uda, default=self.UDA_DEFAULTS.get(uda))
+            default = Settings.UDA_DEFAULTS.get(uda)
+            example = Settings.UDA_INPUTS.get(uda)
+            uda_value = self.input(uda, default=default, examples=example)
             if uda_value not in {'', None}:
                 udas[uda] = uda_value
 
@@ -272,11 +268,10 @@ class TaskQM(Cmd):
 
         return filters
 
-    def input(self, text, default=None):
-        if default:
-            t = f'{text} [{default}]: '
-        else:
-            t = f'{text}: '
+    def input(self, text, default=None, examples=None):
+        examples_str = f' ({examples})' if examples else ''
+        default_str = f' [{default}]' if default else ''
+        t = f'{text}{examples_str}{default_str}: '
         return input(Color.paint(Settings.THEME_COLOR, t)) or default
 
     def output(self, text):
