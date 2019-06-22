@@ -33,7 +33,7 @@ class Settings(object):
     ANNOTATION_INDENT = 2
     ANNOTATION_DATE_FORMAT = '%m/%d'
 
-    PROMPT = 'tasks >'
+    PROMPT = 'tasks '
     TRUE = '\uf62b'
     FALSE = ''
     PADDING = 2
