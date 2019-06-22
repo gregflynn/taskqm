@@ -1,5 +1,5 @@
 from src.settings import Settings
-from .cell import Cell, HeaderCell, DividerCell, EmptyCell
+from .cell import Cell, HeaderCell, DividerCell, EmptyCell, CompositeCell
 
 
 class Column(object):
@@ -10,14 +10,15 @@ class Column(object):
 
     def add(self, task):
         task_item = task.get(self.config.name)
-        cell = None
 
         if task_item is None:
             cell = EmptyCell
+        elif isinstance(task_item, tuple):
+            cell = CompositeCell(self.config, task_item)
         else:
             cell = Cell(self.config, task_item)
-            self.width = max(self.width, cell.width)
 
+        self.width = max(self.width, cell.width)
         self.cells.append(cell)
 
     def render(self, row_num, line_num):

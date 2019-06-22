@@ -9,16 +9,15 @@ USER_SETTINGS_PATH = f'{os.getenv("HOME")}/.taskqmrc'
 SYSTEM_SETTINGS_PATH = '/etc/taskqmrc'
 COLUMNS = [
     ColumnConfig('id', display_name='#', justify=ColumnConfig.RIGHT),
-    ColumnConfig('active', display_name='A'),
-    ColumnConfig('project'),
-    ColumnConfig('description_smart', display_name='description'),
-    ColumnConfig('blocked', display_name=''),
-    ColumnConfig('priority', display_name=''),
-    ColumnConfig('type', display_name=''),
+    ColumnConfig(
+        ('active', 'blocked', 'priority', 'type'),
+        display_name='', justify=ColumnConfig.RIGHT),
     ColumnConfig('size'),
     ColumnConfig(
         'urgency',
         display_name='score', justify=ColumnConfig.RIGHT, fmt='{:.1f}'),
+    ColumnConfig('project'),
+    ColumnConfig('description_smart', display_name='description'),
     ColumnConfig('tags')
 ]
 DONE_COLUMNS = [ColumnConfig('uuid', display_name='#')] + COLUMNS[1:]
@@ -34,7 +33,7 @@ class Settings(object):
     ANNOTATION_INDENT = 2
     ANNOTATION_DATE_FORMAT = '%m/%d'
 
-    PROMPT = ''
+    PROMPT = 'tasks >'
     TRUE = '\uf62b'
     FALSE = ''
     PADDING = 2
@@ -53,7 +52,7 @@ class Settings(object):
         'type': {
             'FTR': Color.GREEN,
             'IMP': Color.PURPLE,
-            'BUG': Color.RED,
+            'BUG': Color.ORANGE,
             'RES': Color.BLUE
         },
         'size': {
@@ -85,13 +84,13 @@ class Settings(object):
             True: '\ue238'
         },
         'blocked': {
-            True: ''
+            True: '\uf655'
         },
         'type': {
-            'BUG': '⚠',
-            'FTR': '★',
-            'IMP': '+',
-            'RES': '🧪',
+            'BUG': '\ue009',
+            'FTR': '\uf067',
+            'IMP': '\uf0fe',
+            'RES': 'R',
             'TSK': ''
         },
         'size': {

@@ -58,6 +58,12 @@ class Task(object):
         return '\n'.join([description] + annotation_lines)
 
     def get(self, col):
-        if hasattr(self, col):
-            return getattr(self, col)
-        return self._data.get(col)
+        is_composite_col = isinstance(col, tuple)
+        ret_data = []
+
+        for c in col if is_composite_col else [col]:
+            ret_data.append(
+                getattr(self, c) if hasattr(self, c) else self._data.get(c)
+            )
+
+        return tuple(ret_data) if is_composite_col else ret_data[0]

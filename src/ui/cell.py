@@ -23,7 +23,7 @@ class Cell(object):
         padding = ' ' * (width - len(line))
         return (
             (padding if self.justify == ColumnConfig.RIGHT else '')
-            + self._colorize(line)
+            + (self._colorize(line) if line else '')
             + (padding if self.justify == ColumnConfig.LEFT else '')
         )
 
@@ -49,6 +49,53 @@ class Cell(object):
             return Color.paint(fg, bg, line)
 
 
+class CompositeCell(object):
+    PADDING = 0
+
+    def __init__(self, column_config, items):
+        self.justify = column_config.justify
+        self.cells = []
+        self.width = 0
+        self.height = 1
+
+        for idx, item in enumerate(items):
+            name = column_config.name[idx]
+            config = ColumnConfig(name)
+
+            if item is None:
+                continue
+
+            cell = Cell(config, item)
+
+            self.cells.append(cell)
+            if cell.width > 0:
+                self.width += (cell.width + self.PADDING)
+                self.height = max(self.height, cell.height)
+
+        self.width = max(self.width - self.PADDING, 0)
+
+    def render(self, width, line_num):
+        line_parts = []
+        line_width = 0
+
+        for cell in self.cells:
+            cell_render = cell.render(0, line_num)
+
+            if cell_render:
+                line_parts.append(cell_render)
+                line_width += cell.width
+
+        line = (' ' * self.PADDING).join(line_parts)
+        line_width += max((len(line_parts) * self.PADDING - 1), 0)
+
+        padding = ' ' * (width - line_width)
+        return (
+            (padding if self.justify == ColumnConfig.RIGHT else '')
+            + line
+            + (padding if self.justify == ColumnConfig.LEFT else '')
+        )
+
+
 class HeaderCell(Cell):
     def __init__(self, column_config):
         super().__init__(column_config, column_config.display_name)
@@ -60,6 +107,7 @@ class HeaderCell(Cell):
 
 class EmptyCell(Cell):
     height = 1
+    width = 0
 
     @classmethod
     def render(cls, width, line_num):
