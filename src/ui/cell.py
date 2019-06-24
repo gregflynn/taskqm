@@ -50,7 +50,7 @@ class Cell(object):
 
 
 class CompositeCell(object):
-    PADDING = 0
+    PADDING = 1
 
     def __init__(self, column_config, items):
         self.justify = column_config.justify
