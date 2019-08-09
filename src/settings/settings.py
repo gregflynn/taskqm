@@ -41,7 +41,7 @@ class Settings(object):
     SELECTOR_COLUMNS = COLUMNS
     BOARDS = [
         BoardConfig(
-            'ready', '+PENDING', COLUMNS, order='active-,project,score-'
+            'ready', '+PENDING -BLOCKED', COLUMNS, order='active-,project,score-'
         ),
         BoardConfig('done', '+COMPLETED', DONE_COLUMNS, order='end-')
     ]
