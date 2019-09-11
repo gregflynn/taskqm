@@ -33,7 +33,7 @@ class Settings(object):
     ANNOTATION_INDENT = 2
     ANNOTATION_DATE_FORMAT = '%m/%d'
 
-    PROMPT = 'tasks '
+    PROMPT = ''
     TRUE = '\uf62b'
     FALSE = ''
     PADDING = 2
@@ -94,11 +94,11 @@ class Settings(object):
             'TSK': ''
         },
         'size': {
-            'XS': '████',
-            'S': '█',
-            'M': '██',
-            'L': '███',
-            'XL': '████'
+            'XS': '█',
+            'S': '██',
+            'M': '███',
+            'L': '████',
+            'XL': '█████'
         },
         'priority': {
             'H': '\uf062',

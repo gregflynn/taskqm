@@ -12,6 +12,13 @@ class Task(object):
         self._data = data
 
     @property
+    def id(self):
+        i = self._data.get('id')
+        if i == 0:
+            i = self._data.get('uuid')
+        return i
+
+    @property
     def active(self):
         return 'start' in self._data and len(self._data['start']) > 0
 

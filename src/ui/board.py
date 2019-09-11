@@ -19,14 +19,15 @@ class Board(object):
 
     def render(self, filters):
         tasks = self._get_sorted_tasks(filters)
+        print()
         print(ColumnGroup(tasks, self.columns).render())
 
     def _get_sorted_tasks(self, filters):
         tasks = TaskService.get_tasks(query=f'{self.query} {filters}')
 
-        for o, directon in reversed(self.order):
+        for o, direction in reversed(self.order):
             key = self._col_map.get(o) or o
-            reverse = directon == '-'
+            reverse = direction == '-'
             tasks = sorted(
                 tasks,
                 # https://stackoverflow.com/a/18411610

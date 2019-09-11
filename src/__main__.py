@@ -3,7 +3,7 @@ from subprocess import run
 
 from src.services import TaskService
 from src.settings import Settings
-from src.ui import Board, StatusLine, Selector
+from src.ui import Board, StatusLine, Selector, TaskQMStdOut
 from src.util import Color
 
 
@@ -17,11 +17,8 @@ class TaskQM(Cmd):
     DEFAULT_BURNDOWN = 'daily'
     BURNDOWN_PERIODS = {'daily', 'weekly', 'monthly'}
 
-    # commands that don't alter the board, so we don't clear and reprint it
-    NON_BOARD_COMMANDS = {'h', 'help', 'view'}
-
     def __init__(self):
-        super().__init__()
+        super().__init__(stdout=TaskQMStdOut())
         self.project = None
         self.filter = None
         self._cmd_output = None
@@ -242,12 +239,6 @@ class TaskQM(Cmd):
     #
     # Helpers
     #
-    def should_print_board(self, line):
-        return (
-            (not line or line.split()[0] not in self.NON_BOARD_COMMANDS)
-            and not self._cmd_output
-        )
-
     def fallback_select(self, header, action, arg=None, query=None):
         if not arg:
             arg = Selector.select(
@@ -275,7 +266,10 @@ class TaskQM(Cmd):
         return input(Color.paint(Settings.THEME_COLOR, t)) or default
 
     def output(self, text):
-        self._cmd_output = text
+        if self._cmd_output is None:
+            self._cmd_output = text
+        else:
+            self._cmd_output += '\n' + text
 
     #
     # Overrides
@@ -286,21 +280,20 @@ class TaskQM(Cmd):
         return line
 
     def postcmd(self, stop, line):
-        print_board = self.should_print_board(line)
-        if print_board:
-            run(['clear'])
-            if line:
-                print(f'{self.prompt}{line}')
+        run(['clear'])
+        self.current_board.render(self.get_filters())
+        print(self._status.render(
+            self.board, self.current_board.order, self.project, self.filter
+        ))
+
+        if line:
+            print(f'{self.prompt}{line}')
 
         if self._cmd_output:
             print(self._cmd_output)
             self._cmd_output = None
+        self.stdout.dump()
 
-        if print_board:
-            print(self._status.render(
-                self.board, self.current_board.order, self.project, self.filter
-            ))
-            self.current_board.render(self.get_filters())
         return stop
 
     def emptyline(self):
