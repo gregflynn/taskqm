@@ -9,8 +9,9 @@ USER_SETTINGS_PATH = f'{os.getenv("HOME")}/.taskqmrc'
 SYSTEM_SETTINGS_PATH = '/etc/taskqmrc'
 COLUMNS = [
     ColumnConfig('id', display_name='#', justify=ColumnConfig.RIGHT),
+    ColumnConfig('active', display_name='', justify=ColumnConfig.RIGHT),
     ColumnConfig(
-        ('active', 'blocked', 'priority', 'type'),
+        ('blocked', 'priority', 'type'),
         display_name='', justify=ColumnConfig.RIGHT),
     ColumnConfig('size'),
     ColumnConfig(
@@ -20,7 +21,6 @@ COLUMNS = [
     ColumnConfig('description_smart', display_name='description'),
     ColumnConfig('tags')
 ]
-DONE_COLUMNS = [ColumnConfig('uuid', display_name='#')] + COLUMNS[1:]
 
 
 class Settings(object):
@@ -41,9 +41,13 @@ class Settings(object):
     SELECTOR_COLUMNS = COLUMNS
     BOARDS = [
         BoardConfig(
-            'ready', '+PENDING -BLOCKED', COLUMNS, order='active-,project,score-'
+            'blocked', '+BLOCKED', COLUMNS, order='project,score-'
         ),
-        BoardConfig('done', '+COMPLETED', DONE_COLUMNS, order='end-')
+        BoardConfig(
+            'ready', '+PENDING -BLOCKED', COLUMNS,
+            order='active-,project,score-', default=True
+        ),
+        BoardConfig('done', '+COMPLETED', COLUMNS, order='end-')
     ]
     CELL_COLORS = {
         'active': {
@@ -81,7 +85,7 @@ class Settings(object):
     }
     CELL_REPLACEMENTS = {
         'active': {
-            True: '\ue238'
+            True: ''
         },
         'blocked': {
             True: '\uf655'
