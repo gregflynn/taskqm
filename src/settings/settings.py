@@ -13,7 +13,7 @@ COLUMNS = [
     ColumnConfig(
         ('blocked', 'priority', 'type'),
         display_name='', justify=ColumnConfig.RIGHT),
-    ColumnConfig('size'),
+    ColumnConfig('size', display_name='siz'),
     ColumnConfig(
         'urgency',
         display_name='score', justify=ColumnConfig.RIGHT, fmt='{:.1f}'),
@@ -33,7 +33,7 @@ class Settings(object):
     ANNOTATION_INDENT = 2
     ANNOTATION_DATE_FORMAT = '%m/%d'
 
-    PROMPT = ''
+    PROMPT = ''
     TRUE = '\uf62b'
     FALSE = ''
     PADDING = 2
@@ -98,11 +98,11 @@ class Settings(object):
             'TSK': ''
         },
         'size': {
-            'XS': '█',
-            'S': '██',
-            'M': '███',
-            'L': '████',
-            'XL': '█████'
+            'XS': '',
+            'S': '█',
+            'M': '██',
+            'L': '███',
+            'XL': '███'
         },
         'priority': {
             'H': '\uf062',
