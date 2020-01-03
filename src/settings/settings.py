@@ -9,7 +9,6 @@ USER_SETTINGS_PATH = f'{os.getenv("HOME")}/.taskqmrc'
 SYSTEM_SETTINGS_PATH = '/etc/taskqmrc'
 COLUMNS = [
     ColumnConfig('id', display_name='#', justify=ColumnConfig.RIGHT),
-    ColumnConfig('active', display_name='', justify=ColumnConfig.RIGHT),
     ColumnConfig(
         ('blocked', 'priority', 'type'),
         display_name='', justify=ColumnConfig.RIGHT),
@@ -44,9 +43,10 @@ class Settings(object):
             'blocked', '+BLOCKED', COLUMNS, order='project,score-'
         ),
         BoardConfig(
-            'ready', '+PENDING -BLOCKED', COLUMNS,
-            order='active-,project,score-', default=True
+            'pending', '-ACTIVE +PENDING -BLOCKED', COLUMNS,
+            order='project,score-'
         ),
+        BoardConfig('active', '+ACTIVE', COLUMNS, default=True),
         BoardConfig('done', '+COMPLETED', COLUMNS, order='end-')
     ]
     CELL_COLORS = {
