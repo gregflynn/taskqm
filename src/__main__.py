@@ -10,7 +10,7 @@ from src.util import Color
 class TaskQM(Cmd):
     intro = ''
     prompt = Color.paint(Settings.THEME_COLOR, Settings.PROMPT + ' ')
-    doc_header = Color.paint(Settings.THEME_COLOR, 'Commands: [help command]')
+    doc_header = Color.paint(Settings.THEME_COLOR, 'Commands:')
     ruler = ''
 
     PROJECTS = set(TaskService.get_projects())
@@ -28,10 +28,10 @@ class TaskQM(Cmd):
         self._board_names = []
         self.board = None
 
-        for board_config in Settings.BOARDS:
+        for idx, board_config in enumerate(Settings.BOARDS):
             name = board_config.name
             self._board_names.append(name)
-            self._board_switches[name[0]] = name
+            self._board_switches[str(idx + 1)] = name
             self._board_switches[name] = name
             self._board_map[name] = Board(
                 name,
@@ -47,8 +47,6 @@ class TaskQM(Cmd):
             self.board = self._board_names[0]
 
         self._status = StatusLine(self._board_names)
-        self.precmd('')
-        self.postcmd(False, '')
 
     @property
     def current_board(self):
@@ -79,7 +77,11 @@ class TaskQM(Cmd):
         """select the board to view
         """
         if arg not in self._board_map:
-            arg = self._board_names[0]
+            try:
+                idx = int(arg) - 1
+                arg = self._board_names[idx]
+            except (ValueError, IndexError):
+                arg = self._board_names[0]
         self.board = arg
 
     def complete_board(self, text, line, begidx, endidx):
@@ -249,15 +251,15 @@ class TaskQM(Cmd):
             action(arg)
 
     def get_filters(self):
-        filters = ''
+        filters = []
 
         if self.project:
-            filters += f' project:{self.project}'
+            filters.append(f'project:{self.project}')
 
         if self.filter:
-            filters += self.filter
+            filters.append(f'/{self.filter}/')
 
-        return filters
+        return ' '.join(filters)
 
     def input(self, text, default=None, examples=None):
         examples_str = f' ({examples})' if examples else ''
@@ -276,22 +278,21 @@ class TaskQM(Cmd):
     #
     def precmd(self, line):
         if line == 'EOF':
-            raise KeyboardInterrupt
+            raise QuitException
         return line
 
     def postcmd(self, stop, line):
         run(['clear'])
-        self.current_board.render(self.get_filters())
         print(self._status.render(
             self.board, self.current_board.order, self.project, self.filter
         ))
-
-        if line:
-            print(f'{self.prompt}{line}')
+        self.current_board.render(self.get_filters())
 
         if self._cmd_output:
-            print(self._cmd_output)
+            print('\n' + self._cmd_output)
             self._cmd_output = None
+        else:
+            self.do_help(None)
         self.stdout.dump()
 
         return stop
@@ -301,22 +302,26 @@ class TaskQM(Cmd):
         """
 
     def default(self, line):
-        try:
-            if line in TaskService.get_task_ids():
-                self.do_view(line)
-                return
-        except Exception:
-            pass
-
         board_name = self._board_switches.get(line)
         if board_name:
             self.board = board_name
 
 
+class QuitException(Exception):
+    pass
+
+
 if __name__ == '__main__':
     TaskService.sync()
-    try:
-        TaskQM().cmdloop()
-    except KeyboardInterrupt:
-        pass
+    taskqm = TaskQM()
+
+    while True:
+        try:
+            taskqm.postcmd(None, None)
+            taskqm.cmdloop()
+        except QuitException:
+            break
+        except KeyboardInterrupt:
+            pass
+
     TaskService.sync()

@@ -13,89 +13,78 @@ class StatusLine(object):
         self._board_names = board_names
 
     def render(self, board, order, project, filters):
-        div = Divider(Settings.THEME_COLOR)
-        line = ['\n']
+        spacer = '   '
+        line = [
+            '\n',
+            self._board_sections(board),
+            spacer,
+            self._order_sections(order),
+            spacer
+        ]
 
-        sections = []
-        for board_section in self._board_sections(board):
-            sections.extend([board_section, div])
-        sections.pop()
-        sections.append(self._order_section(order))
-
-        line.append(self._render_sections(sections))
-        line.append('  ')
-
-        extra_sections = []
         if project:
-            extra_sections.append(self._project_section(project))
+            line.append(self._project_sections(project))
+            line.append(spacer)
 
         if filters:
-            extra_sections.append(self._filter_section(filters))
-        line.append(self._render_sections(extra_sections))
+            line.append(self._filter_sections(filters))
 
         return ''.join(line + ['\n'])
 
-    def _render_sections(self, sections):
-        line = []
-        for idx, section in enumerate(sections):
-            line.append(section.render(idx, sections))
+    @staticmethod
+    def _render_sections(*sections):
+        line = [
+            section.render(i, sections) for i, section in enumerate(sections)
+        ]
         return ''.join(line)
 
     def _board_sections(self, board):
         def active(b):
             return b == board
-        return [
+        label = Section('board', self.ACTIVE_BOARD_BG, self.ACTIVE_BOARD_FG)
+        boards = [
             Section(
-                b,
+                f'{i + 1}:{b}',
                 self.ACTIVE_BOARD_FG if active(b) else self.INACTIVE_BOARD_FG,
                 self.ACTIVE_BOARD_BG if active(b) else self.INACTIVE_BOARD_BG
             )
-            for b in self._board_names
+            for i, b in enumerate(self._board_names)
         ]
+        return self._render_sections(label, *boards)
 
-    def _project_section(self, project):
-        return Section(f'{project}', Color.BLACK, Settings.PROJECT_COLOR)
+    def _project_sections(self, project):
+        return self._render_sections(
+            Section('project', Color.BLACK, Settings.PROJECT_COLOR),
+            Section(project, Settings.PROJECT_COLOR, Color.BLACK)
+        )
 
-    def _order_section(self, order):
+    def _order_sections(self, order):
         order = ','.join([f'{c}{d}' for c, d in order])
-        return Section(order, Color.BLACK, Settings.THEME_COLOR)
+        return self._render_sections(
+            Section('order', Color.BLACK, Settings.THEME_COLOR),
+            Section(order, Settings.THEME_COLOR, Color.BLACK)
+        )
 
-    def _filter_section(self, filters):
+    def _filter_sections(self, filters):
         f = filters.replace(' ', ',')
-        return Section(f, Color.BLACK, Settings.FILTERS_COLOR)
+        return self._render_sections(
+            Section('filter', Color.BLACK, Settings.FILTERS_COLOR),
+            Section(f, Settings.FILTERS_COLOR, Color.BLACK)
+        )
 
 
 class Section(object):
-    FIRST_ARROW = '\uE0BA'
-    ARROW = '\uE0BC'
-
     def __init__(self, text, fg, bg):
         self.text = text
         self.fg = fg
         self.bg = bg
 
     def render(self, idx, sections):
-        pre = ''
-        text = self._render_text()
+        lpad = ' '
+        rpad = ' '
 
-        next_section = self._next_section_color(idx, sections)
-        if next_section:
-            arrow = Color.paint(self.bg, next_section, self.ARROW)
-        else:
-            arrow = Color.paint(self.bg, self.ARROW)
+        if idx > 0:
+            # assume idx 0 is the label
+            rpad = ''
 
-        if idx == 0:
-            pre = Color.paint(self.bg, self.FIRST_ARROW)
-
-        return f'{pre}{Color.paint(self.fg, self.bg, text)}{arrow}'
-
-    def _render_text(self):
-        return f' {self.text} ' if self.text else self.text
-
-    def _next_section_color(self, idx, sections):
-        return sections[idx + 1].bg if len(sections) > idx + 1 else None
-
-
-class Divider(Section):
-    def __init__(self, color):
-        super().__init__('', Color.WHITE, color)
+        return Color.paint(self.fg, self.bg, f'{lpad}{self.text}{rpad}')

@@ -19,7 +19,6 @@ class Board(object):
 
     def render(self, filters):
         tasks = self._get_sorted_tasks(filters)
-        print()
         print(ColumnGroup(tasks, self.columns).render())
 
     def _get_sorted_tasks(self, filters):
