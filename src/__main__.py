@@ -163,7 +163,14 @@ class TaskQM(Cmd):
             if annotation:
                 TaskService.annotate(tid, annotation)
 
-        self.fallback_select('Annotate Task', set_annotation, arg=arg)
+        # use the current board's query if there are tasks on it
+        query = None
+        if self.current_board.count() > 0:
+            query = self.current_board.query
+
+        self.fallback_select(
+            'Annotate Task', set_annotation, arg=arg, query=query
+        )
 
     def do_add(self, arg):
         """add a task
