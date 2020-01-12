@@ -3,8 +3,11 @@ import os
 from src.util import Color
 from .column_config import ColumnConfig
 from .board_config import BoardConfig
+from .task_warrior_settings import TaskWarriorSettings
 
 
+TASKRC = TaskWarriorSettings(f'{os.getenv("HOME")}/.taskrc')
+UDAS = TASKRC.udas
 USER_SETTINGS_PATH = f'{os.getenv("HOME")}/.taskqmrc'
 SYSTEM_SETTINGS_PATH = '/etc/taskqmrc'
 COLUMNS = [
@@ -23,7 +26,7 @@ COLUMNS = [
 
 
 class Settings(object):
-    DEFAULT_PROJECT = 'home'
+    DEFAULT_PROJECT = TASKRC.get('default.project')
     THEME_COLOR = Color.ORANGE
     PROJECT_COLOR = Color.PURPLE
     FILTERS_COLOR = Color.RED
@@ -35,7 +38,7 @@ class Settings(object):
     PROMPT = ''
     TRUE = '\uf62b'
     FALSE = ''
-    PADDING = 2
+    PADDING = int(TASKRC.get('column.padding') or 0)
 
     SELECTOR_COLUMNS = COLUMNS
     BOARDS = [
@@ -85,7 +88,7 @@ class Settings(object):
     }
     CELL_REPLACEMENTS = {
         'active': {
-            True: ''
+            True: TASKRC.get('active.indicator')
         },
         'blocked': {
             True: '\uf655'
@@ -110,13 +113,11 @@ class Settings(object):
             'L': '\uf063'
         }
     }
-    UDA_DEFAULTS = {
-        'priority': 'M',
-        'size': 'M',
-        'type': 'TSK'
-    }
-    UDA_INPUTS = {
-        'priority': 'H,M,L',
-        'size': 'XS,S,M,L,XL',
-        'type': 'BUG,TSK,FTR,IMP,RES'
-    }
+    UDA_DEFAULTS = {}
+    UDA_INPUTS = {}
+
+
+# this is kinda hacky but, we need to parse the UDAs out
+for uda in UDAS:
+    Settings.UDA_DEFAULTS[uda.name] = uda.default
+    Settings.UDA_INPUTS[uda.name] = ','.join(uda.values)
