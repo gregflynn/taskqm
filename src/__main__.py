@@ -43,8 +43,11 @@ class TaskQM(Cmd):
                 self.board = name
 
         self.board = self.board or self._board_names[0]
-        if self.current_board.count() == 0:
-            self.board = self._board_names[0]
+        board_idx = self._board_names.index(self.board)
+
+        while self.current_board.count() == 0 and board_idx > 0:
+            board_idx -= 1
+            self.board = self._board_names[board_idx]
 
         self._status = StatusLine(self._board_names)
 
