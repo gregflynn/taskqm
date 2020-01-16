@@ -8,23 +8,42 @@ class Task(object):
     DATE_PARSE_FMT = '%Y%m%dT%H%M%SZ'
     ANNOTATION_PAD = Settings.ANNOTATION_INDENT * ' '
 
-    def __init__(self, data):
+    def __init__(self, data, task_map):
         self._data = data
+        self._task_map = task_map
 
     @property
     def id(self):
         i = self._data.get('id')
         if i == 0:
-            i = self._data.get('uuid')
+            i = self.uuid
         return i
 
     @property
+    def uuid(self):
+        return self._data.get('uuid')
+
+    @property
     def active(self):
-        return 'start' in self._data and len(self._data['start']) > 0
+        return len(self._data.get('start', '')) > 0
+
+    @property
+    def done(self):
+        return len(self._data.get('end', '')) > 0
 
     @property
     def blocked(self):
-        return self._data.get('depends') is not None
+        for uuid in self.dependency_uuids:
+            dependency = self._task_map.get(uuid)
+
+            if dependency and not dependency.done:
+                return True
+
+        return False
+
+    @property
+    def dependency_uuids(self):
+        return (self._data.get('depends') or '').split(',')
 
     @property
     def description_smart(self):

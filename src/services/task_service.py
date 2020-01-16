@@ -33,8 +33,15 @@ class TaskService(object):
         if query:
             cmd.append(query)
         cmd.append('export')
-        tasks = json.loads(check_output(cmd))
-        return [Task(t) for t in tasks]
+
+        tasks = []
+        task_map = {}
+        for task in json.loads(check_output(cmd)):
+            t = Task(task, task_map)
+            tasks.append(t)
+            task_map[t.uuid] = t
+
+        return tasks
 
     @classmethod
     def edit(cls, taskid):
