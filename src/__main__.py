@@ -211,9 +211,9 @@ class TaskQM(Cmd):
             def set_depends(parent_tid):
                 TaskService.depends(tid, parent_tid)
 
-            self.fallback_select('Precursor Task', set_depends)
+            self.fallback_select('Precursor Task', set_depends, '-DONE')
 
-        self.fallback_select('Dependent Task', select_parent)
+        self.fallback_select('Dependent Task', select_parent, '-DONE')
 
     def do_sync(self, arg):
         """sync tasks to the server

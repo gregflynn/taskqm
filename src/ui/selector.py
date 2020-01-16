@@ -40,5 +40,5 @@ class Selector(object):
             tasks = f'{header}\n\n{tasks}'
             hlines = 4
 
-        cmd = f'echo "{tasks}" | fzf --ansi --header-lines={hlines} --reverse --inline-info' # noqa
+        cmd = f'echo "{tasks}" | fzf --ansi --header-lines={hlines} --reverse --inline-info'  # noqa
         return check_output(cmd, shell=True).decode('utf8')
