@@ -49,7 +49,7 @@ class TaskQM(Cmd):
             board_idx -= 1
             self.board = self._board_names[board_idx]
 
-        self._status = StatusLine(self._board_names)
+        self._status = StatusLine(self._board_names, self._board_map)
 
     @property
     def current_board(self):

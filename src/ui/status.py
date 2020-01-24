@@ -9,8 +9,9 @@ class StatusLine(object):
     INACTIVE_BOARD_FG = Color.WHITE
     INACTIVE_BOARD_BG = Color.BLACK
 
-    def __init__(self, board_names):
+    def __init__(self, board_names, board_map):
         self._board_names = board_names
+        self._board_map = board_map
 
     def render(self, board, order, project, filters):
         spacer = '   '
@@ -44,7 +45,7 @@ class StatusLine(object):
         label = Section('board', self.ACTIVE_BOARD_BG, self.ACTIVE_BOARD_FG)
         boards = [
             Section(
-                f'{i + 1}:{b}',
+                f'{i + 1}:{b} ({self._board_map[b].count()})',
                 self.ACTIVE_BOARD_FG if active(b) else self.INACTIVE_BOARD_FG,
                 self.ACTIVE_BOARD_BG if active(b) else self.INACTIVE_BOARD_BG
             )
